@@ -52,3 +52,4 @@ data class Vehicle(
     val capacity: Double,
     val status: String
 )
+
