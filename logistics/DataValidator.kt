@@ -207,7 +207,7 @@ fun main() {
     parsedRoutes.forEach { println("   $it") }
     println("=======================================")
 
-    // 🚀 هنا مكان الكود الحقيقي الجديد لفحص ملف الشحنات الفعلي (مع إضافة الطباعة):
+    // هنا مكان الكود الحقيقي الجديد لفحص ملف الشحنات الفعلي (مع إضافة الطباعة):
     println("\n--- Testing Real CSV File Reading ---")
     val realLines = readCsvFile("src/main/resources/packages.csv")
     val realPackages = processPackageCsv(realLines)
