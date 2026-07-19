@@ -6,7 +6,7 @@ enum class Priority(val rank: Int) {
     LOW(1);
 
     companion object {
-        /** تحويل نص لأولوية بدون حساسية لحالة الأحرف، وأي قيمة غريبة ترجع LOW. */
+
         fun fromString(raw: String): Priority {
             return when (raw.trim().uppercase()) {
                 "URGENT" -> URGENT
