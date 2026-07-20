@@ -1,7 +1,5 @@
-
 package logistics
 import java.io.File
-
 
 enum class Priority(val rank: Int) {
     URGENT(3),
@@ -9,7 +7,6 @@ enum class Priority(val rank: Int) {
     LOW(1);
 
     companion object {
-
         fun fromString(raw: String): Priority {
             return when (raw.trim().uppercase()) {
                 "URGENT" -> URGENT
@@ -49,8 +46,19 @@ data class Vehicle(
     val status: String
 )
 
-
 val files = arrayOf("resources/fleet.csv", "resources/packages.csv", "resources/routes.csv", "resources/warehouses.csv")
+
+fun main() {
+    var fileIndex = 0
+    while (fileIndex < files.size) {
+        val currentFile = files[fileIndex]
+        println("===========================================")
+        println("------------------ $currentFile ------------------")
+        println("===========================================")
+        readFile(currentFile)
+        fileIndex++
+    }
+}
 
 fun readFile(filePath: String) {
     val fileContent = File(filePath).readText()
@@ -116,12 +124,10 @@ fun checkDataValidation(line: String, lineNumber: Int) {
     var currentWord = ""
     var cleanLineIndex = 0
 
-
     while (cleanLineIndex <= cleanLineWithoutSpaces.length) {
         if (cleanLineIndex < cleanLineWithoutSpaces.length && cleanLineWithoutSpaces[cleanLineIndex] != ',') {
             currentWord = currentWord + cleanLineWithoutSpaces[cleanLineIndex]
         } else {
-
             var wordCharIndex = 0
             var decimalDotsCount = 0
             var isNumericValue = true
