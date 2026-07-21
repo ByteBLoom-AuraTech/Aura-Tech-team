@@ -4,6 +4,22 @@ import logistics.countCommas
 import logistics.readFile
 import java.io.File
 
+enum class Priority(val rank: Int) {
+    URGENT(3),
+    STANDARD(2),
+    LOW(1);
+
+    companion object {
+        fun fromString(raw: String): Priority {
+            return when (raw.trim().uppercase()) {
+                "URGENT" -> URGENT
+                "STANDARD" -> STANDARD
+                "LOW" -> LOW
+                else -> LOW
+            }
+        }
+    }
+}
 
 val files = arrayOf("resources/fleet.csv", "resources/packages.csv", "resources/routes.csv", "resources/warehouses.csv")
 

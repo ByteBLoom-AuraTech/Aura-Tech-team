@@ -150,6 +150,7 @@ fun checkDataValidation(line: String, lineNumber: Int) {
     }
 }
 
+
 fun countCommas(text: String): Int {
     var commasCount = 0
     var charIndex = 0

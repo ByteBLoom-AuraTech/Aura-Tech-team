@@ -13,6 +13,7 @@ fun manualTrim(input: String): String {
     return input.substring(start, end + 1)
 }
 
+
 fun manualSplitCsv(line: String): List<String> {
     val result = mutableListOf<String>()
     var currentColumn = ""
