@@ -1,2 +1,5 @@
 package logistics
 
+fun main(){
+
+}
