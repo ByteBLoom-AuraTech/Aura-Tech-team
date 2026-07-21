@@ -4,6 +4,7 @@ import logistics.countCommas
 import logistics.readFile
 import java.io.File
 
+
 enum class Priority(val rank: Int) {
     URGENT(3),
     STANDARD(2),
