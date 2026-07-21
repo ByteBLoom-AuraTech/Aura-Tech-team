@@ -87,8 +87,7 @@ fun checkDataValidation(line: String, lineNumber: Int) {
             while (wordCharIndex < currentWord.length) {
                 if (currentWord[wordCharIndex] == '.') {
                     decimalDotsCount++
-                } else if (currentWord[wordCharIndex] < '0' || currentWord[wordCharIndex] > '9') {
-                    isNumericValue = false }
+                } else if (currentWord[wordCharIndex] < '0' || currentWord[wordCharIndex] > '9') { isNumericValue = false }
                 wordCharIndex++ }
             if (isNumericValue == false || decimalDotsCount > 1 || currentWord.length == 0) {
                 println("WARNING--- : in line number $lineNumber malformed numeric data!") }
@@ -99,12 +98,7 @@ fun checkDataValidation(line: String, lineNumber: Int) {
 fun countCommas(text: String): Int {
     var commasCount = 0
     var charIndex = 0
-
     while (charIndex < text.length) {
-        if (text[charIndex] == ',') {
-            commasCount++
-        }
-        charIndex++
-    }
-    return commasCount
-}
+        if (text[charIndex] == ',') { commasCount++ }
+        charIndex++ }
+    return commasCount }
