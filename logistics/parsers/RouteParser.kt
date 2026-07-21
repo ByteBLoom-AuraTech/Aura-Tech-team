@@ -1,7 +1,7 @@
 package logistics.parsers
 
 
-data class Route(
+data class RouteRow(
     val routeId: String,
     val originHubId: String,
     val destinationHubId: String,

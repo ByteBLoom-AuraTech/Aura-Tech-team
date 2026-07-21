@@ -1,7 +1,7 @@
 package logistics.parsers
 
 
-data class Package(
+data class PackageRow(
     val id: String,
     val weight: Double,
     val destinationHubId: String,

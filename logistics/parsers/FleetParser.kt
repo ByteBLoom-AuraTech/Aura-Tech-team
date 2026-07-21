@@ -1,7 +1,7 @@
 package logistics.parsers
 
 
-data class Fleet(
+data class FleetRow(
     val vehicleId: String,
     val currentHubId: String,
     val maxCapacityKg: Double,
