@@ -39,51 +39,31 @@ fun main() {
 
 fun readFile(filePath: String) {
     val fileContent = File(filePath).readText()
-
     var fileIndex = 0
     var headerLine = ""
-
     while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
         headerLine = headerLine + fileContent[fileIndex]
-        fileIndex++
-    }
-
+        fileIndex++ }
     val expectedCommas = countCommas(headerLine)
-
     while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
-        fileIndex++
-    }
-
+        fileIndex++ }
     var lineNumber = 1
-
     while (fileIndex < fileContent.length) {
         lineNumber++
         var currentLine = ""
-
         while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
             currentLine = currentLine + fileContent[fileIndex]
-            fileIndex++
-        }
-
+            fileIndex++ }
         while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
-            fileIndex++
-        }
-
+            fileIndex++ }
         if (currentLine.length == 0) {
-            continue
-        }
-
+            continue }
         val currentLineCommas = countCommas(currentLine)
-
         if (currentLineCommas != expectedCommas) {
             if (currentLineCommas < expectedCommas) {
                 println("WARNING--- : in line number $lineNumber there is a deleted value")
-            } else {
-                println("WARNING--- : in line number $lineNumber there is an extra value")
-            }
-        } else {
-            checkDataValidation(currentLine, lineNumber)
-        }
+            } else { println("WARNING--- : in line number $lineNumber there is an extra value") }
+        } else { checkDataValidation(currentLine, lineNumber) }
     }
 }
 
