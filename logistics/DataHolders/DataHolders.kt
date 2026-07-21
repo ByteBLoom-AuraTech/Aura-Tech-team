@@ -91,17 +91,12 @@ fun readFile(filePath: String) {
 fun checkDataValidation(line: String, lineNumber: Int) {
     var cleanLineWithoutSpaces = ""
     var lineIndex = 0
-
     while (lineIndex < line.length) {
         if (line[lineIndex] != ' ') {
-            cleanLineWithoutSpaces = cleanLineWithoutSpaces + line[lineIndex]
-        }
-        lineIndex++
-    }
-
+            cleanLineWithoutSpaces = cleanLineWithoutSpaces + line[lineIndex] }
+        lineIndex++ }
     var currentWord = ""
     var cleanLineIndex = 0
-
     while (cleanLineIndex <= cleanLineWithoutSpaces.length) {
         if (cleanLineIndex < cleanLineWithoutSpaces.length && cleanLineWithoutSpaces[cleanLineIndex] != ',') {
             currentWord = currentWord + cleanLineWithoutSpaces[cleanLineIndex]
@@ -109,25 +104,17 @@ fun checkDataValidation(line: String, lineNumber: Int) {
             var wordCharIndex = 0
             var decimalDotsCount = 0
             var isNumericValue = true
-
             while (wordCharIndex < currentWord.length) {
                 if (currentWord[wordCharIndex] == '.') {
                     decimalDotsCount++
                 } else if (currentWord[wordCharIndex] < '0' || currentWord[wordCharIndex] > '9') {
-                    isNumericValue = false
-                }
-                wordCharIndex++
-            }
-
+                    isNumericValue = false }
+                wordCharIndex++ }
             if (isNumericValue == false || decimalDotsCount > 1 || currentWord.length == 0) {
-                println("WARNING--- : in line number $lineNumber malformed numeric data!")
-            }
-            currentWord = ""
-        }
-        cleanLineIndex++
-    }
+                println("WARNING--- : in line number $lineNumber malformed numeric data!") }
+            currentWord = "" }
+        cleanLineIndex++ }
 }
-
 
 fun countCommas(text: String): Int {
     var commasCount = 0
