@@ -1,4 +1,4 @@
-package logistics.models
+package logistics.DataHolders
 import logistics.checkDataValidation
 import logistics.countCommas
 import logistics.readFile
