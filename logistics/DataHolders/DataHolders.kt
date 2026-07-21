@@ -101,4 +101,5 @@ fun countCommas(text: String): Int {
     while (charIndex < text.length) {
         if (text[charIndex] == ',') { commasCount++ }
         charIndex++ }
-    return commasCount }
+    return commasCount
+}
