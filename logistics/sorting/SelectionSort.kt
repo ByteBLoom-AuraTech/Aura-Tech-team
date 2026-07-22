@@ -1,6 +1,5 @@
 package logistics.sorting
 
-
 fun sortPackagesByPriority(packagesList: MutableList<List<String>>) {
     val listSize = packagesList.size
 
@@ -42,7 +41,6 @@ fun findBestIndex(packagesList: MutableList<List<String>>, startIndex: Int): Int
     }
     return targetIndex
 }
-
 
 fun getHigherPriority(firstPriority: String, secondPriority: String): String {
     return if (getPriorityRank(firstPriority) >= getPriorityRank(secondPriority)) firstPriority else secondPriority
