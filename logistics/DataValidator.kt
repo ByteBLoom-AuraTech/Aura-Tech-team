@@ -1,238 +1,199 @@
 
 package logistics
 import java.io.File
-// =========================================================================
-// 1. YOUR MANUAL CORE TOOLS (DO NOT TOUCH - USED FOR ALL FILES)
-// =========================================================================
+fun trimSpacesFromEdges(textToClean: String): String {
+    var startPointer = 0
+    var endPointer = textToClean.length - 1
 
-fun manualTrim(input: String): String {
-    var start = 0
-    var end = input.length - 1
-    while (start <= end && input[start] <= ' ') start++
-    while (end >= start && input[end] <= ' ') end--
-    return input.substring(start, end + 1)
+    while (startPointer <= endPointer && textToClean[startPointer] <= ' ') {
+        startPointer++
+    }
+    while (endPointer >= startPointer && textToClean[endPointer] <= ' ') {
+        endPointer--
+    }
+    return textToClean.substring(startPointer, endPointer + 1)
 }
 
-fun manualSplitCsv(line: String): List<String> {
-    val result = mutableListOf<String>()
-    var currentColumn = ""
-    for (i in 0 until line.length) {
-        val char = line[i]
-        if (char == ',') {
-            result.add(manualTrim(currentColumn))
-            currentColumn = ""
+fun splitCsvLineByComma(singleCsvLineText: String): List<String> {
+    val extractedColumnsList = mutableListOf<String>()
+    var currentColumnTextBuilder = ""
+
+    for (characterIndex in 0 until singleCsvLineText.length) {
+        val currentCharacter = singleCsvLineText[characterIndex]
+        if (currentCharacter == ',') {
+            extractedColumnsList.add(trimSpacesFromEdges(currentColumnTextBuilder))
+            currentColumnTextBuilder = ""
         } else {
-            currentColumn += char
+            currentColumnTextBuilder += currentCharacter
         }
     }
-    result.add(manualTrim(currentColumn))
-    return result
+    extractedColumnsList.add(trimSpacesFromEdges(currentColumnTextBuilder))
+    return extractedColumnsList
 }
 
-fun manualParseDouble(input: String): Double {
-    return try {
-        java.lang.Double.parseDouble(input)
-    } catch (e: Exception) {
-        -1.0
-    }
-}
-
-fun filterRawLinesManually(lines: List<String>): List<String> {
-    val cleanLines = mutableListOf<String>()
-    for (i in 1 until lines.size) { // Skip header row at index 0
-        val currentLine = lines[i]
-        if (currentLine.isNotEmpty() && !isLineOnlySpaces(currentLine)) {
-            cleanLines.add(currentLine)
+fun checkIfLineContainsOnlySpaces(singleCsvLineText: String): Boolean {
+    for (characterIndex in 0 until singleCsvLineText.length) {
+        if (singleCsvLineText[characterIndex] > ' ') {
+            return false
         }
-    }
-    return cleanLines
-}
-
-fun isLineOnlySpaces(line: String): Boolean {
-    for (i in 0 until line.length) {
-        if (line[i] > ' ') return false
     }
     return true
 }
 
-// ==================================================================
-// 2. FILE 1: Packeges PIPELINE (UPDATED WITH NOOR'S DATA MODELS)
-// ======================================================
-
-fun validateAndParsePackage(rawLine: String): Package? {
-    val columns = manualSplitCsv(rawLine)
-    if (columns.size < 4 || columns[3].isEmpty()) {
-        println("Warning: Skipping malformed package row.")
-        return null
+fun removeHeaderAndEmptyLines(allRawCsvLines: List<String>): List<String> {
+    val validDataLinesOnly = mutableListOf<String>()
+    for (lineIndex in 1 until allRawCsvLines.size) {
+        val currentLineText = allRawCsvLines[lineIndex]
+        if (currentLineText.isNotEmpty() && !checkIfLineContainsOnlySpaces(currentLineText)) {
+            validDataLinesOnly.add(currentLineText)
+        }
     }
-    val id = columns[0]
-    val weight = manualParseDouble(columns[1])
-    // Using Noor's official Priority enum and conversion tool
-    val priority = Priority.fromString(columns[2])
-    val destinationHubId = columns[3]
-
-    return Package(id, weight, priority, destinationHubId)
+    return validDataLinesOnly
 }
 
-fun processPackageCsv(allLines: List<String>): List<Package> {
-    val cleanParsedPackages = mutableListOf<Package>()
-    val filteredLines = filterRawLinesManually(allLines)
-    for (i in 0 until filteredLines.size) {
-        val parsedObject = validateAndParsePackage(filteredLines[i])
-        if (parsedObject != null) cleanParsedPackages.add(parsedObject)
+fun checkIfTextIsDecimalNumber(textToCheck: String): Boolean {
+    if (textToCheck.isEmpty()) return false
+
+    var countOfDecimalPoints = 0
+    var startCharacterIndex = 0
+
+    if (textToCheck[0] == '-') {
+        if (textToCheck.length == 1) return false
+        startCharacterIndex = 1
     }
-    return cleanParsedPackages
+
+    for (characterIndex in startCharacterIndex until textToCheck.length) {
+        val currentCharacter = textToCheck[characterIndex]
+        if (currentCharacter == '.') {
+            countOfDecimalPoints++
+            if (countOfDecimalPoints > 1) return false
+        } else if (currentCharacter < '0' || currentCharacter > '9') {
+            return false
+        }
+    }
+    return true
 }
 
-// =========================================================================
-// 3. FILE 2: WAREHOUSES PIPELINE
-// =========================================================================
-
-fun validateAndParseWarehouse(rawLine: String): Warehouse? {
-    val columns = manualSplitCsv(rawLine)
-    if (columns.size < 4 || columns[0].isEmpty()) {
-        println("Warning: Skipping malformed warehouse row.")
-        return null
+fun convertTextToDecimalNumberOrDefault(textToConvert: String): Double {
+    val cleanedText = trimSpacesFromEdges(textToConvert)
+    if (checkIfTextIsDecimalNumber(cleanedText)) {
+        return cleanedText.toDouble()
     }
-    val warehouseId = columns[0]
-    val name = columns[1]
-    val capacity = manualParseDouble(columns[2])
-    val location = columns[3]
-
-    return Warehouse(warehouseId, name, capacity, location)
+    return -1.0
 }
 
-fun processWarehouseCsv(allLines: List<String>): List<Warehouse> {
-    val cleanParsedWarehouses = mutableListOf<Warehouse>()
-    val filteredLines = filterRawLinesManually(allLines)
-    for (i in 0 until filteredLines.size) {
-        val parsedObject = validateAndParseWarehouse(filteredLines[i])
-        if (parsedObject != null) cleanParsedWarehouses.add(parsedObject)
+fun readLinesFromCsvFile(filePathOnDisk: String): List<String> {
+    val targetFile = File(filePathOnDisk)
+    if (targetFile.exists()) {
+        return targetFile.readLines()
+    } else {
+        println("Error: File not found at path: $filePathOnDisk")
+        return emptyList()
     }
-    return cleanParsedWarehouses
 }
 
-// =========================================================================
-// 4. FILE 3: ROUTES PIPELINE
-// =========================================================================
-
-fun validateAndParseRoute(rawLine: String): RouteRecord? {
-    val columns = manualSplitCsv(rawLine)
-    if (columns.size < 4 || columns[0].isEmpty()) {
-        println("Warning: Skipping malformed route row.")
-        return null
-    }
-    val routeId = columns[0]
-    val originId = columns[1]
-    val destinationId = columns[2]
-    val distance = manualParseDouble(columns[3])
-
-    return RouteRecord(routeId, originId, destinationId, distance)
+fun checkIfPackageDataIsValid(columnValuesList: List<String>): Boolean {
+    if (columnValuesList.size < 4) return false
+    if (columnValuesList[3].isEmpty()) return false
+    return true
 }
 
-fun processRouteCsv(allLines: List<String>): List<RouteRecord> {
-    val cleanParsedRoutes = mutableListOf<RouteRecord>()
-    val filteredLines = filterRawLinesManually(allLines)
-    for (i in 0 until filteredLines.size) {
-        val parsedObject = validateAndParseRoute(filteredLines[i])
-        if (parsedObject != null) cleanParsedRoutes.add(parsedObject)
-    }
-    return cleanParsedRoutes
+fun checkIfWarehouseDataIsValid(columnValuesList: List<String>): Boolean {
+    if (columnValuesList.size < 4) return false
+    if (columnValuesList[0].isEmpty()) return false
+    return true
 }
 
-// =========================================================================
-// 5. FILE 4: FLEET (VEHICLES) PIPELINE
-// =========================================================================
-
-fun validateAndParseVehicle(rawLine: String): Vehicle? {
-    val columns = manualSplitCsv(rawLine)
-    if (columns.size < 4 || columns[0].isEmpty()) {
-        println("Warning: Skipping malformed vehicle row.")
-        return null
-    }
-    val vehicleId = columns[0]
-    val type = columns[1]
-    val capacity = manualParseDouble(columns[2])
-    val status = columns[3]
-
-    return Vehicle(vehicleId, type, capacity, status)
+fun checkIfRouteDataIsValid(columnValuesList: List<String>): Boolean {
+    if (columnValuesList.size < 4) return false
+    if (columnValuesList[0].isEmpty()) return false
+    return true
 }
 
-fun processVehicleCsv(allLines: List<String>): List<Vehicle> {
-    val cleanParsedVehicles = mutableListOf<Vehicle>()
-    val filteredLines = filterRawLinesManually(allLines)
-    for (i in 0 until filteredLines.size) {
-        val parsedObject = validateAndParseVehicle(filteredLines[i])
-        if (parsedObject != null) cleanParsedVehicles.add(parsedObject)
-    }
-    return cleanParsedVehicles
+fun checkIfVehicleDataIsValid(columnValuesList: List<String>): Boolean {
+    if (columnValuesList.size < 4) return false
+    if (columnValuesList[0].isEmpty()) return false
+    return true
 }
 
+fun buildPackageFromColumns(columnValuesList: List<String>): Package {
+    val packageIdText = columnValuesList[0]
+    val packageWeightValue = convertTextToDecimalNumberOrDefault(columnValuesList[1])
+    val packagePriorityEnum = Priority.fromString(columnValuesList[2])
+    val destinationHubIdText = columnValuesList[3]
 
-fun main() {
-    println("--- Starting DataValidator Test System for LogiRoute Genesis ---")
-
-    // 1. Testing Packages File (Dummy)
-    val dummyPackageLines = listOf(
-        "packageId,weight,priority,destinationHubId",
-        "PKG-001, 45.5, URGENT, HUB-WEST ",
-        "PKG-002, invalid_weight, STANDARD, HUB-EAST",
-        "PKG-003, 12.0"
-    )
-    val parsedPackages = processPackageCsv(dummyPackageLines)
-    println(" Successfully Extracted Packages (${parsedPackages.size}):")
-    parsedPackages.forEach { println("   $it") }
-    println("=====================================================")
-
-    // 2. Testing Warehouses File
-    val dummyWarehouseLines = listOf(
-        "warehouseId,name,capacity,location",
-        "HUB-WEST, West Coast Hub, 5000.0, California",
-        "HUB-EAST, East Coast Hub, abc, New York",
-        ", Missing ID Hub, 1000.0, Texas"
-    )
-    val parsedWarehouses = processWarehouseCsv(dummyWarehouseLines)
-    println(" Successfully Extracted Warehouses (${parsedWarehouses.size}):")
-    parsedWarehouses.forEach { println("   $it") }
-    println("==============================================")
-
-    // 3. Testing Routes File
-    val dummyRouteLines = listOf(
-        "routeId,originId,destinationId,distance",
-        "R-01, HUB-WEST, HUB-EAST, 2800.5",
-        "R-02, HUB-EAST, HUB-SOUTH, 1200.0"
-    )
-    val parsedRoutes = processRouteCsv(dummyRouteLines)
-    println(" Successfully Extracted Routes (${parsedRoutes.size}):")
-    parsedRoutes.forEach { println("   $it") }
-    println("=======================================")
-
-    // هنا مكان الكود الحقيقي الجديد لفحص ملف الشحنات الفعلي (مع إضافة الطباعة):
-    println("\n--- Testing Real CSV File Reading ---")
-    val realLines = readCsvFile("src/main/resources/packages.csv")
-    val realPackages = processPackageCsv(realLines)
-    println(" Successfully Extracted Real Packages (${realPackages.size}):")
-    realPackages.forEach { println("   $it") }
-    println("=====================================================")
-
-    // 4. Testing Fleet / Vehicles File
-    val dummyVehicleLines = listOf(
-        "vehicleId,type,capacity,status",
-        "V-101, Truck, 15.0, ACTIVE",
-        "V-102, Van, 3.5, MAINTENANCE"
-    )
-    val parsedVehicles = processVehicleCsv(dummyVehicleLines)
-    println("Successfully Extracted Vehicles (${parsedVehicles.size}):")
-    parsedVehicles.forEach { println("   $it") }
-    println("===== Diagnostic Test Completed Successfully! =====")
+    return Package(packageIdText, packageWeightValue, packagePriorityEnum, destinationHubIdText)
 }
 
+fun buildWarehouseFromColumns(columnValuesList: List<String>): Warehouse {
+    val warehouseIdText = columnValuesList[0]
+    val warehouseNameText = columnValuesList[1]
+    val warehouseCapacityValue = convertTextToDecimalNumberOrDefault(columnValuesList[2])
+    val warehouseLocationText = columnValuesList[3]
 
-fun readCsvFile(filePath: String): List<String> {
-    return try {
-        File(filePath).readLines()
-    } catch (e: Exception) {
-        println("Error reading file at $filePath: ${e.message}")
-        emptyList()
+    return Warehouse(warehouseIdText, warehouseNameText, warehouseCapacityValue, warehouseLocationText)
+}
+
+fun buildRouteFromColumns(columnValuesList: List<String>): RouteRecord {
+    val routeIdText = columnValuesList[0]
+    val originHubIdText = columnValuesList[1]
+    val destinationHubIdText = columnValuesList[2]
+    val routeDistanceValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
+
+    return RouteRecord(routeIdText, originHubIdText, destinationHubIdText, routeDistanceValue)
+}
+
+fun buildVehicleFromColumns(columnValuesList: List<String>): Vehicle {
+    val vehicleIdText = columnValuesList[0]
+    val vehicleTypeText = columnValuesList[1]
+    val vehicleCapacityValue = convertTextToDecimalNumberOrDefault(columnValuesList[2])
+    val vehicleStatusText = columnValuesList[3]
+
+    return Vehicle(vehicleIdText, vehicleTypeText, vehicleCapacityValue, vehicleStatusText)
+}
+
+fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProcess: String): List<Any> {
+    val createdEntitiesList = mutableListOf<Any>()
+    val cleanedCsvDataLinesOnly = removeHeaderAndEmptyLines(csvFileLines)
+
+    for (lineIndex in 0 until cleanedCsvDataLinesOnly.size) {
+        val singleLineText = cleanedCsvDataLinesOnly[lineIndex]
+        val extractedColumnValuesList = splitCsvLineByComma(singleLineText)
+
+        when (entityTypeToProcess) {
+            "PACKAGE" -> {
+                if (checkIfPackageDataIsValid(extractedColumnValuesList)) {
+                    val createdPackageEntity = buildPackageFromColumns(extractedColumnValuesList)
+                    createdEntitiesList.add(createdPackageEntity)
+                } else {
+                    println("Warning: Skipping malformed package row at index $lineIndex.")
+                }
+            }
+            "WAREHOUSE" -> {
+                if (checkIfWarehouseDataIsValid(extractedColumnValuesList)) {
+                    val createdWarehouseEntity = buildWarehouseFromColumns(extractedColumnValuesList)
+                    createdEntitiesList.add(createdWarehouseEntity)
+                } else {
+                    println("Warning: Skipping malformed warehouse row at index $lineIndex.")
+                }
+            }
+            "ROUTE" -> {
+                if (checkIfRouteDataIsValid(extractedColumnValuesList)) {
+                    val createdRouteEntity = buildRouteFromColumns(extractedColumnValuesList)
+                    createdEntitiesList.add(createdRouteEntity)
+                } else {
+                    println("Warning: Skipping malformed route row at index $lineIndex.")
+                }
+            }
+            "VEHICLE" -> {
+                if (checkIfVehicleDataIsValid(extractedColumnValuesList)) {
+                    val createdVehicleEntity = buildVehicleFromColumns(extractedColumnValuesList)
+                    createdEntitiesList.add(createdVehicleEntity)
+                } else {
+                    println("Warning: Skipping malformed vehicle row at index $lineIndex.")
+                }
+            }
+        }
     }
+    return createdEntitiesList
 }
