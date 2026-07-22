@@ -1,60 +1,54 @@
-package logistics.sorting
+package org.example.sorting
 
-fun sortPackagesByPriority(packagesList: MutableList<List<String>>) {
-    val listSize = packagesList.size
+import org.example.DataHolders.Priority
+import org.example.DataHolders.PackageRaw
 
-    for (currentIndex in 0 until listSize - 1) {
-        val bestIndex = findBestIndex(packagesList, currentIndex)
 
-        if (bestIndex != currentIndex) {
-            val selectedPackage = packagesList[bestIndex]
+fun getPriorityRank(priority: Priority): Int {
+    return when (priority) {
+        Priority.URGENT -> 3
+        Priority.STANDARD -> 2
+        Priority.LOW -> 1
+    }
+}
 
-            for (i in bestIndex downTo currentIndex + 1) {
-                packagesList[i] = packagesList[i - 1]
-            }
+fun isHigherPackagePriority(firstPackage: PackageRaw, secondPackage: PackageRaw): Boolean {
+    val firstPriorityRank = getPriorityRank(firstPackage.priority)
+    val secondPriorityRank = getPriorityRank(secondPackage.priority)
+    return firstPriorityRank > secondPriorityRank
+}
 
-            packagesList[currentIndex] = selectedPackage
+fun isHigherPackageWeight(firstPackage: PackageRaw, secondPackage: PackageRaw): Boolean {
+    return firstPackage.weight > secondPackage.weight
+}
+
+fun findBestPackageIndex(packages: List<PackageRaw>): Int {
+    var bestPackageIndex = 0
+
+    for (currentPackageIndex in 1 until packages.size) {
+        val currentPackage = packages[currentPackageIndex]
+        val selectedPackage = packages[bestPackageIndex]
+
+        if (isHigherPackagePriority(currentPackage, selectedPackage)) {
+            bestPackageIndex = currentPackageIndex
+        } else if (currentPackage.priority == selectedPackage.priority && isHigherPackageWeight(currentPackage, selectedPackage)) {
+            bestPackageIndex = currentPackageIndex
         }
     }
+
+    return bestPackageIndex
 }
 
-fun findBestIndex(packagesList: MutableList<List<String>>, startIndex: Int): Int {
-    val listSize = packagesList.size
-    var targetIndex = startIndex
+fun sortPackagesUsingSelectionSort(packages: List<PackageRaw>): List<PackageRaw> {
+    val unsortedPackages = packages.toMutableList()
+    val sortedPackages = mutableListOf<PackageRaw>()
 
-    for (searchIndex in startIndex + 1 until listSize) {
-        val currentPriorityStr = packagesList[searchIndex][2]
-        val bestPriorityStr = packagesList[targetIndex][2]
+    while (unsortedPackages.isNotEmpty()) {
+        val bestPackageIndex = findBestPackageIndex(unsortedPackages)
 
-        val higherPriority = getHigherPriority(currentPriorityStr, bestPriorityStr)
-
-        if (higherPriority == currentPriorityStr && !isSamePriority(currentPriorityStr, bestPriorityStr)) {
-            targetIndex = searchIndex
-        } else if (isSamePriority(currentPriorityStr, bestPriorityStr)) {
-            val currentWeight = packagesList[searchIndex][1].toDoubleOrNull() ?: 0.0
-            val bestWeight = packagesList[targetIndex][1].toDoubleOrNull() ?: 0.0
-
-            if (currentWeight > bestWeight) {
-                targetIndex = searchIndex
-            }
-        }
+        sortedPackages.add(unsortedPackages[bestPackageIndex])
+        unsortedPackages.removeAt(bestPackageIndex)
     }
-    return targetIndex
-}
 
-fun getHigherPriority(firstPriority: String, secondPriority: String): String {
-    return if (getPriorityRank(firstPriority) >= getPriorityRank(secondPriority)) firstPriority else secondPriority
-}
-
-fun isSamePriority(firstPriority: String, secondPriority: String): Boolean {
-    return getPriorityRank(firstPriority) == getPriorityRank(secondPriority)
-}
-
-fun getPriorityRank(priority: String): Int {
-    return when (priority.trim().uppercase()) {
-        "URGENT" -> 3
-        "STANDARD" -> 2
-        "LOW" -> 1
-        else -> 0
-    }
+    return sortedPackages
 }
