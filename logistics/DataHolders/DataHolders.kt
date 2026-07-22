@@ -1,5 +1,9 @@
-package logistics
+package logistics.DataHolders
+import logistics.checkDataValidation
+import logistics.countCommas
+import logistics.readFile
 import java.io.File
+
 
 enum class Priority(val rank: Int) {
     URGENT(3),
@@ -18,34 +22,6 @@ enum class Priority(val rank: Int) {
     }
 }
 
-data class Package(
-    val packageId: String,
-    val weight: Double,
-    val priority: Priority,
-    val destinationHubId: String
-)
-
-data class Warehouse(
-    val warehouseId: String,
-    val name: String,
-    val capacity: Double,
-    val location: String
-)
-
-data class RouteRecord(
-    val routeId: String,
-    val originId: String,
-    val destinationId: String,
-    val distance: Double
-)
-
-data class Vehicle(
-    val vehicleId: String,
-    val type: String,
-    val capacity: Double,
-    val status: String
-)
-
 val files = arrayOf("resources/fleet.csv", "resources/packages.csv", "resources/routes.csv", "resources/warehouses.csv")
 
 fun main() {
@@ -60,70 +36,47 @@ fun main() {
     }
 }
 
+
 fun readFile(filePath: String) {
     val fileContent = File(filePath).readText()
-
     var fileIndex = 0
     var headerLine = ""
-
     while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
         headerLine = headerLine + fileContent[fileIndex]
-        fileIndex++
-    }
-
+        fileIndex++ }
     val expectedCommas = countCommas(headerLine)
-
     while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
-        fileIndex++
-    }
-
+        fileIndex++ }
     var lineNumber = 1
-
     while (fileIndex < fileContent.length) {
         lineNumber++
         var currentLine = ""
-
         while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
             currentLine = currentLine + fileContent[fileIndex]
-            fileIndex++
-        }
-
+            fileIndex++ }
         while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
-            fileIndex++
-        }
-
+            fileIndex++ }
         if (currentLine.length == 0) {
-            continue
-        }
-
+            continue }
         val currentLineCommas = countCommas(currentLine)
-
         if (currentLineCommas != expectedCommas) {
             if (currentLineCommas < expectedCommas) {
                 println("WARNING--- : in line number $lineNumber there is a deleted value")
-            } else {
-                println("WARNING--- : in line number $lineNumber there is an extra value")
-            }
-        } else {
-            checkDataValidation(currentLine, lineNumber)
-        }
+            } else { println("WARNING--- : in line number $lineNumber there is an extra value") }
+        } else { checkDataValidation(currentLine, lineNumber) }
     }
 }
+
 
 fun checkDataValidation(line: String, lineNumber: Int) {
     var cleanLineWithoutSpaces = ""
     var lineIndex = 0
-
     while (lineIndex < line.length) {
         if (line[lineIndex] != ' ') {
-            cleanLineWithoutSpaces = cleanLineWithoutSpaces + line[lineIndex]
-        }
-        lineIndex++
-    }
-
+            cleanLineWithoutSpaces = cleanLineWithoutSpaces + line[lineIndex] }
+        lineIndex++ }
     var currentWord = ""
     var cleanLineIndex = 0
-
     while (cleanLineIndex <= cleanLineWithoutSpaces.length) {
         if (cleanLineIndex < cleanLineWithoutSpaces.length && cleanLineWithoutSpaces[cleanLineIndex] != ',') {
             currentWord = currentWord + cleanLineWithoutSpaces[cleanLineIndex]
@@ -131,35 +84,22 @@ fun checkDataValidation(line: String, lineNumber: Int) {
             var wordCharIndex = 0
             var decimalDotsCount = 0
             var isNumericValue = true
-
             while (wordCharIndex < currentWord.length) {
                 if (currentWord[wordCharIndex] == '.') {
                     decimalDotsCount++
-                } else if (currentWord[wordCharIndex] < '0' || currentWord[wordCharIndex] > '9') {
-                    isNumericValue = false
-                }
-                wordCharIndex++
-            }
-
+                } else if (currentWord[wordCharIndex] < '0' || currentWord[wordCharIndex] > '9') { isNumericValue = false }
+                wordCharIndex++ }
             if (isNumericValue == false || decimalDotsCount > 1 || currentWord.length == 0) {
-                println("WARNING--- : in line number $lineNumber malformed numeric data!")
-            }
-            currentWord = ""
-        }
-        cleanLineIndex++
-    }
+                println("WARNING--- : in line number $lineNumber malformed numeric data!") }
+            currentWord = "" }
+        cleanLineIndex++ }
 }
-
 
 fun countCommas(text: String): Int {
     var commasCount = 0
     var charIndex = 0
-
     while (charIndex < text.length) {
-        if (text[charIndex] == ',') {
-            commasCount++
-        }
-        charIndex++
-    }
+        if (text[charIndex] == ',') { commasCount++ }
+        charIndex++ }
     return commasCount
 }
