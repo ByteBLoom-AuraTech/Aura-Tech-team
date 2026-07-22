@@ -1,7 +1,5 @@
 package logistics.DataHolders
-import logistics.checkDataValidation
-import logistics.countCommas
-import logistics.readFile
+
 import java.io.File
 
 
@@ -100,7 +98,7 @@ fun extractNextLine (fileContent: String , fileIndex: Int): Pair<String, Int> {
     return Pair(currentLine, nextIndex)
 }
 
-fun validateLineCommas(currentLine: String , lineNumber: Int , expectedCommas: Int){
+fun validateLineCommas(currentLine: String, lineNumber: Int, expectedCommas: Int) {
     val currentLineCommas = countCommas(currentLine)
     if (currentLineCommas != expectedCommas) {
         if (currentLineCommas < expectedCommas) {
@@ -109,7 +107,7 @@ fun validateLineCommas(currentLine: String , lineNumber: Int , expectedCommas: I
             println("WARNING--- : in line number $lineNumber there is an extra value")
         }
     } else {
-        checkDataValidation(currentLine, lineNumber)
+        println("Line $lineNumber comma structure is valid.")
     }
 }
 
