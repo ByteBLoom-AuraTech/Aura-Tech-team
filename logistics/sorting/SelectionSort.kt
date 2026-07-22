@@ -19,7 +19,6 @@ fun sortPackagesByPriority(packagesList: MutableList<List<String>>) {
     }
 }
 
-
 fun findBestIndex(packagesList: MutableList<List<String>>, startIndex: Int): Int {
     val listSize = packagesList.size
     var targetIndex = startIndex
