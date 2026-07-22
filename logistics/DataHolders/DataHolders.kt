@@ -22,21 +22,21 @@ enum class Priority(val rank: Int) {
     }
 }
 
-data class FleetRow(
+data class FleetRaw(
     val vehicleId: String,
     val currentHubId: String,
     val maxCapacityKg: Double,
     val costPerKm: Double
 )
 
-data class PackageRow(
+data class PackageRaw(
     val id: String,
     val weight: Double,
     val destinationHubId: String,
     val priority: String
 )
 
-data class RouteRow(
+data class RouteRaw(
     val routeId: String,
     val originHubId: String,
     val destinationHubId: String,
@@ -44,7 +44,7 @@ data class RouteRow(
     val typicalDelayMin: Double
 )
 
-data class WarehouseRow(
+data class WarehouseRaw(
     val id: String,
     val name: String,
     val regionalZone: String
