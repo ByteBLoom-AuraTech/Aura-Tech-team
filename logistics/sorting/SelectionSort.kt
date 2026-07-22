@@ -1,9 +1,6 @@
 package logistics.sorting
 
-/**
- * Returns the higher priority between two values.
- * URGENT is the highest, then STANDARD, then LOW.
- */
+
 fun getHigherPriority(firstPriority: String, secondPriority: String): String {
     val priorityOne = firstPriority.trim().uppercase()
     val priorityTwo = secondPriority.trim().uppercase()
@@ -18,15 +15,10 @@ fun getHigherPriority(firstPriority: String, secondPriority: String): String {
 
     return "LOW"
 }
-/*** Checks whether two priority values are the same, ignoring case and spacing.*/
 fun isSamePriority(firstPriority: String, secondPriority: String): Boolean {
     return firstPriority.trim().uppercase() == secondPriority.trim().uppercase()
 }
 
-/**
- * Searches the unsorted portion of the list (from startIndex to the end)
- * and returns the index of the best candidate (highest priority, then highest weight).
- */
 fun findBestIndex(packagesList: MutableList<List<String>>, startIndex: Int): Int {
     val listSize = packagesList.size
     var targetIndex = startIndex
@@ -53,10 +45,7 @@ fun findBestIndex(packagesList: MutableList<List<String>>, startIndex: Int): Int
     return targetIndex
 }
 
-/**
- * Manual Selection Sort: repeatedly finds the best remaining candidate
- * and swaps it into its correct position.
- */
+
 fun selectionSort(packagesList: MutableList<List<String>>) {
     val listSize = packagesList.size
 
