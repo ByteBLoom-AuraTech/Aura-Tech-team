@@ -3,7 +3,6 @@ package logistics.sorting
 import logistics.DataHolders.Priority
 import logistics.DataHolders.PackageRaw
 
-
 fun getPriorityRank(priority: Priority): Int {
     return when (priority) {
         Priority.URGENT -> 3
