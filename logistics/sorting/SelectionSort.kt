@@ -1,7 +1,7 @@
-package org.example.sorting
+package logistics.sorting
 
-import org.example.DataHolders.Priority
-import org.example.DataHolders.PackageRaw
+import logistics.DataHolders.Priority
+import logistics.DataHolders.PackageRaw
 
 
 fun getPriorityRank(priority: Priority): Int {
