@@ -1,7 +1,10 @@
-package logistics.sorting
+package logistics
 
-import logistics.DataHolders.Priority
-import logistics.DataHolders.PackageRaw
+import kotlin.text.compareTo
+
+import logistics.*
+
+
 
 fun getPriorityRank(priority: Priority): Int {
     return when (priority) {
