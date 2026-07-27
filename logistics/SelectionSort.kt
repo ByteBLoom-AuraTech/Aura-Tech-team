@@ -6,6 +6,7 @@ import logistics.*
 
 
 
+
 fun getPriorityRank(priority: Priority): Int {
     return when (priority) {
         Priority.URGENT -> 3
