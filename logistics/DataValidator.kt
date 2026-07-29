@@ -1,6 +1,88 @@
 
 package logistics
+
 import java.io.File
+
+
+
+//NOOR
+
+fun skipHeader(fileContent: String): Int {
+    var fileIndex = 0
+    var headerLine = ""
+    while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
+        headerLine = headerLine + fileContent[fileIndex]
+        fileIndex++
+    }
+    return skipLineBreaks(fileContent, fileIndex)
+}
+
+fun skipLineBreaks(fileContent: String , fileIndex: Int): Int {
+    var fileIndex = fileIndex
+    while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
+        fileIndex++
+    }
+    return fileIndex
+}
+
+fun extractNextLine (fileContent: String , fileIndex: Int): Pair<String, Int> {
+    var currentLine = ""
+    var fileIndex = fileIndex
+    while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
+        currentLine = currentLine + fileContent[fileIndex]
+        fileIndex++
+    }
+    val nextIndex = skipLineBreaks(fileContent, fileIndex)
+    return Pair(currentLine, nextIndex)
+}
+
+fun validateLineCommasCounter(currentLine: String, lineNumber: Int, expectedCommas: Int) :Int {
+    val currentLineCommas = countCommasForHeaders(currentLine)
+    var validLines = 0
+    if (currentLineCommas != expectedCommas) {
+        if (currentLineCommas < expectedCommas) {
+            println("WARNING--- : in line number $lineNumber there is a deleted value")
+        } else {
+            println("WARNING--- : in line number $lineNumber there is an extra value")
+        }
+    } else {
+        println("Line $lineNumber comma structure is valid.")
+        validLines++
+    }
+    return validLines
+}
+
+fun processDataLines(fileContent: String , fileIndex: Int){
+    var lineNumber = 1
+    var currentIndex = fileIndex
+    while (currentIndex < fileContent.length) {
+        lineNumber++
+        val (currentLine, nextIndex) = extractNextLine(fileContent, currentIndex)
+        currentIndex = nextIndex
+
+        if (currentLine.isNotEmpty()) {
+            val cleanLine = trimSpacesFromEdges(currentLine)
+            validateLineCommasCounter(cleanLine, lineNumber, 3)
+            splitCsvLineByComma(cleanLine)
+        }
+    }
+}
+
+
+fun countCommasForHeaders(text: String): Int {
+    var commasCount = 0
+    var charIndex = 0
+    while (charIndex < text.length) {
+        if (text[charIndex] == ',') { commasCount++ }
+        charIndex++
+    }
+    return commasCount
+}
+
+//=========================================================================================================================================
+
+//BARAA
+
 fun trimSpacesFromEdges(textToClean: String): String {
     var startPointer = 0
     var endPointer = textToClean.length - 1
@@ -31,25 +113,8 @@ fun splitCsvLineByComma(singleCsvLineText: String): List<String> {
     return extractedColumnsList
 }
 
-fun checkIfLineContainsOnlySpaces(singleCsvLineText: String): Boolean {
-    for (characterIndex in 0 until singleCsvLineText.length) {
-        if (singleCsvLineText[characterIndex] > ' ') {
-            return false
-        }
-    }
-    return true
-}
 
-fun removeHeaderAndEmptyLines(allRawCsvLines: List<String>): List<String> {
-    val validDataLinesOnly = mutableListOf<String>()
-    for (lineIndex in 1 until allRawCsvLines.size) {
-        val currentLineText = allRawCsvLines[lineIndex]
-        if (currentLineText.isNotEmpty() && !checkIfLineContainsOnlySpaces(currentLineText)) {
-            validDataLinesOnly.add(currentLineText)
-        }
-    }
-    return validDataLinesOnly
-}
+
 
 fun checkIfTextIsDecimalNumber(textToCheck: String): Boolean {
     if (textToCheck.isEmpty()) return false
@@ -82,15 +147,6 @@ fun convertTextToDecimalNumberOrDefault(textToConvert: String): Double {
     return -1.0
 }
 
-fun readLinesFromCsvFile(filePathOnDisk: String): List<String> {
-    val targetFile = File(filePathOnDisk)
-    if (targetFile.exists()) {
-        return targetFile.readLines()
-    } else {
-        println("Error: File not found at path: $filePathOnDisk")
-        return emptyList()
-    }
-}
 
 fun checkIfPackageDataIsValid(columnValuesList: List<String>): Boolean {
     if (columnValuesList.size < 4) return false
@@ -119,37 +175,38 @@ fun checkIfVehicleDataIsValid(columnValuesList: List<String>): Boolean {
 fun buildPackageFromColumns(columnValuesList: List<String>): Package {
     val packageIdText = columnValuesList[0]
     val packageWeightValue = convertTextToDecimalNumberOrDefault(columnValuesList[1])
-    val packagePriorityEnum = Priority.fromString(columnValuesList[2])
-    val destinationHubIdText = columnValuesList[3]
+    val destinationHubIdText = columnValuesList[2]
+    val packagePriorityEnum = Priority.fromString(columnValuesList[3])
 
-    return Package(packageIdText, packageWeightValue, packagePriorityEnum, destinationHubIdText)
+
+    return Package(packageIdText, packageWeightValue,destinationHubIdText, packagePriorityEnum)
 }
 
 fun buildWarehouseFromColumns(columnValuesList: List<String>): Warehouse {
     val warehouseIdText = columnValuesList[0]
     val warehouseNameText = columnValuesList[1]
-    val warehouseCapacityValue = convertTextToDecimalNumberOrDefault(columnValuesList[2])
-    val warehouseLocationText = columnValuesList[3]
+    val warehouseregionalZoneText = columnValuesList[2]
 
-    return Warehouse(warehouseIdText, warehouseNameText, warehouseCapacityValue, warehouseLocationText)
+    return Warehouse(warehouseIdText, warehouseNameText, warehouseregionalZoneText)
 }
 
 fun buildRouteFromColumns(columnValuesList: List<String>): RouteRecord {
     val routeIdText = columnValuesList[0]
     val originHubIdText = columnValuesList[1]
     val destinationHubIdText = columnValuesList[2]
-    val routeDistanceValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
+    val distanceKmValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
+    val typicalDelayMin = convertTextToDecimalNumberOrDefault(columnValuesList[4])
 
-    return RouteRecord(routeIdText, originHubIdText, destinationHubIdText, routeDistanceValue)
+    return RouteRecord(routeIdText, originHubIdText, destinationHubIdText, distanceKmValue,typicalDelayMin)
 }
 
-fun buildVehicleFromColumns(columnValuesList: List<String>): Vehicle {
+fun buildFleetFromColumns(columnValuesList: List<String>): Fleet {
     val vehicleIdText = columnValuesList[0]
-    val vehicleTypeText = columnValuesList[1]
-    val vehicleCapacityValue = convertTextToDecimalNumberOrDefault(columnValuesList[2])
-    val vehicleStatusText = columnValuesList[3]
+    val currentHubIdText = columnValuesList[1]
+    val maxCapacityKgValue  = convertTextToDecimalNumberOrDefault(columnValuesList[2])
+    val costPerKmValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
 
-    return Vehicle(vehicleIdText, vehicleTypeText, vehicleCapacityValue, vehicleStatusText)
+    return Fleet(vehicleIdText, currentHubIdText, maxCapacityKgValue, costPerKmValue)
 }
 
 fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProcess: String): List<Any> {
@@ -185,12 +242,12 @@ fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProces
                     println("Warning: Skipping malformed route row at index $lineIndex.")
                 }
             }
-            "VEHICLE" -> {
-                if (checkIfVehicleDataIsValid(extractedColumnValuesList)) {
-                    val createdVehicleEntity = buildVehicleFromColumns(extractedColumnValuesList)
-                    createdEntitiesList.add(createdVehicleEntity)
+            "FLEET" -> {
+                if (checkIfFleetDataIsValid(extractedColumnValuesList)) {
+                    val createdFleetEntity = buildFleetFromColumns(extractedColumnValuesList)
+                    createdEntitiesList.add(createdFleetEntity)
                 } else {
-                    println("Warning: Skipping malformed vehicle row at index $lineIndex.")
+                    println("Warning: Skipping malformed Fleet row at index $lineIndex.")
                 }
             }
         }
