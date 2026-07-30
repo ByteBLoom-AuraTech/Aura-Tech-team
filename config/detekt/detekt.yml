@@ -3,6 +3,9 @@ build:
   maxIssues: 0
   excludeCorrectable: false
 
+config:
+  useDefaultConfig: false
+
 # Code complexity Rules
 complexity:
   active: true
