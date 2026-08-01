@@ -59,6 +59,7 @@ fun main() {
     println("==========================================\n")
 
     println("Top 3 packages by priority and weight (full details):")
+
     println("------------------------------------------")
 
     val top3Packages = sortedPackages.take(3)
