@@ -14,7 +14,6 @@ fun readLinesFromCsvFile(filePathOnDisk: String): List<String> {
     }
 }
 
-
 fun trimSpacesFromEdges(textToClean: String): String {
     var startPointer = 0
     var endPointer = textToClean.length - 1
