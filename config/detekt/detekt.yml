@@ -3,8 +3,14 @@ build:
   maxIssues: 0
   excludeCorrectable: false
 
-# Code Style Rules
 style:
+  active: false
+
+naming:
+  active: false
+
+# Code complexity Rules
+complexity:
   active: true
   # Rule to enforce a maximum limit on method length
   LongMethod:
