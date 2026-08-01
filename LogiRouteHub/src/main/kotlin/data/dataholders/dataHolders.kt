@@ -2,6 +2,7 @@ package LogiRouteHub
 
 
 
+
 enum class Priority(val rank: Int) {
     URGENT(3),
     STANDARD(2),
