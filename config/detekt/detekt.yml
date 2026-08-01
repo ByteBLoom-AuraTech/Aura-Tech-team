@@ -1,0 +1,19 @@
+# Detekt Static Analysis Configuration File
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+style:
+  active: false
+
+naming:
+  active: false
+
+# Code complexity Rules
+complexity:
+  active: true
+  # Rule to enforce a maximum limit on method length
+  LongMethod:
+    active: true
+    threshold: 30 # Function length limit set to 30 lines
+    ignoreAnnotated: []
