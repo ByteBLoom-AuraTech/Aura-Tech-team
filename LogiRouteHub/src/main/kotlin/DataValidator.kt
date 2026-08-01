@@ -1,44 +1,22 @@
-
 package LogiRouteHub
 
 import java.io.File
 
 
 
-//NOOR
-
-fun skipHeader(fileContent: String): Int {
-    var fileIndex = 0
-    var headerLine = ""
-    while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
-        headerLine = headerLine + fileContent[fileIndex]
-        fileIndex++
+fun readLinesFromCsvFile(filePathOnDisk: String): List<String> {
+    val targetFile = File(filePathOnDisk)
+    if (targetFile.exists()) {
+        return targetFile.readLines()
+    } else {
+        println("Error: File not found at path: $filePathOnDisk")
+        return emptyList()
     }
-    return skipLineBreaks(fileContent, fileIndex)
-}
-
-fun skipLineBreaks(fileContent: String , fileIndex: Int): Int {
-    var fileIndex = fileIndex
-    while (fileIndex < fileContent.length && (fileContent[fileIndex] == '\n' || fileContent[fileIndex] == '\r')) {
-        fileIndex++
-    }
-    return fileIndex
-}
-
-fun extractNextLine (fileContent: String , fileIndex: Int): Pair<String, Int> {
-    var currentLine = ""
-    var fileIndex = fileIndex
-    while (fileIndex < fileContent.length && fileContent[fileIndex] != '\n' && fileContent[fileIndex] != '\r') {
-        currentLine = currentLine + fileContent[fileIndex]
-        fileIndex++
-    }
-    val nextIndex = skipLineBreaks(fileContent, fileIndex)
-    return Pair(currentLine, nextIndex)
 }
 
 fun validateLineCommasCounter(currentLine: String, lineNumber: Int, expectedCommas: Int) :Int {
-    val currentLineCommas = countCommasForHeaders(currentLine)
     var validLines = 0
+    val currentLineCommas = countCommasForHeaders(currentLine)
     if (currentLineCommas != expectedCommas) {
         if (currentLineCommas < expectedCommas) {
             println("WARNING--- : in line number $lineNumber there is a deleted value")
@@ -52,22 +30,6 @@ fun validateLineCommasCounter(currentLine: String, lineNumber: Int, expectedComm
     return validLines
 }
 
-fun processDataLines(fileContent: String , fileIndex: Int){
-    var lineNumber = 1
-    var currentIndex = fileIndex
-    while (currentIndex < fileContent.length) {
-        lineNumber++
-        val (currentLine, nextIndex) = extractNextLine(fileContent, currentIndex)
-        currentIndex = nextIndex
-
-        if (currentLine.isNotEmpty()) {
-            val cleanLine = trimSpacesFromEdges(currentLine)
-            validateLineCommasCounter(cleanLine, lineNumber, 3)
-            splitCsvLineByComma(cleanLine)
-        }
-    }
-}
-
 
 fun countCommasForHeaders(text: String): Int {
     var commasCount = 0
@@ -78,10 +40,6 @@ fun countCommasForHeaders(text: String): Int {
     }
     return commasCount
 }
-
-//=========================================================================================================================================
-
-//BARAA
 
 fun trimSpacesFromEdges(textToClean: String): String {
     var startPointer = 0
@@ -112,9 +70,24 @@ fun splitCsvLineByComma(singleCsvLineText: String): List<String> {
     extractedColumnsList.add(trimSpacesFromEdges(currentColumnTextBuilder))
     return extractedColumnsList
 }
-
-
-
+fun checkIfLineContainsOnlySpaces(singleCsvLineText: String): Boolean {
+    for (characterIndex in 0 until singleCsvLineText.length) {
+        if (singleCsvLineText[characterIndex] > ' ') {
+            return false
+        }
+    }
+    return true
+}
+fun ClenTheData(allRawCsvLines: List<String>): List<String> {
+    val validDataLinesOnly = mutableListOf<String>()
+    for (lineIndex in 1 until allRawCsvLines.size) {
+        val currentLineText = allRawCsvLines[lineIndex]
+        if (currentLineText.isNotEmpty() && !checkIfLineContainsOnlySpaces(currentLineText)) {
+            validDataLinesOnly.add(currentLineText)
+        }
+    }
+    return validDataLinesOnly
+}
 
 fun checkIfTextIsDecimalNumber(textToCheck: String): Boolean {
     if (textToCheck.isEmpty()) return false
@@ -138,7 +111,31 @@ fun checkIfTextIsDecimalNumber(textToCheck: String): Boolean {
     }
     return true
 }
+fun checkIfTextIsIntegerNumber(textToCheck: String): Boolean {
+    if (textToCheck.isEmpty()) return false
 
+    var startCharacterIndex = 0
+    if (textToCheck[0] == '-') {
+        if (textToCheck.length == 1) return false
+        startCharacterIndex = 1
+    }
+
+    for (characterIndex in startCharacterIndex until textToCheck.length) {
+        val currentCharacter = textToCheck[characterIndex]
+        if (currentCharacter < '0' || currentCharacter > '9') {
+            return false
+        }
+    }
+    return true
+}
+
+fun convertTextToIntegerOrDefault(textToConvert: String): Int {
+    val cleanedText = trimSpacesFromEdges(textToConvert)
+    if (checkIfTextIsIntegerNumber(cleanedText)) {
+        return cleanedText.toInt()
+    }
+    return -1
+}
 fun convertTextToDecimalNumberOrDefault(textToConvert: String): Double {
     val cleanedText = trimSpacesFromEdges(textToConvert)
     if (checkIfTextIsDecimalNumber(cleanedText)) {
@@ -146,7 +143,6 @@ fun convertTextToDecimalNumberOrDefault(textToConvert: String): Double {
     }
     return -1.0
 }
-
 
 fun checkIfPackageDataIsValid(columnValuesList: List<String>): Boolean {
     if (columnValuesList.size < 4) return false
@@ -166,52 +162,52 @@ fun checkIfRouteDataIsValid(columnValuesList: List<String>): Boolean {
     return true
 }
 
-fun checkIfVehicleDataIsValid(columnValuesList: List<String>): Boolean {
+fun checkIfFleetDataIsValid(columnValuesList: List<String>): Boolean {
     if (columnValuesList.size < 4) return false
     if (columnValuesList[0].isEmpty()) return false
     return true
 }
 
-fun buildPackageFromColumns(columnValuesList: List<String>): Package {
+fun buildPackageFromColumns(columnValuesList: List<String>): PackageRaw {
     val packageIdText = columnValuesList[0]
     val packageWeightValue = convertTextToDecimalNumberOrDefault(columnValuesList[1])
     val destinationHubIdText = columnValuesList[2]
     val packagePriorityEnum = Priority.fromString(columnValuesList[3])
 
 
-    return Package(packageIdText, packageWeightValue,destinationHubIdText, packagePriorityEnum)
+    return PackageRaw(packageIdText, packageWeightValue,destinationHubIdText, packagePriorityEnum)
 }
 
-fun buildWarehouseFromColumns(columnValuesList: List<String>): Warehouse {
+fun buildWarehouseFromColumns(columnValuesList: List<String>): WarehouseRaw {
     val warehouseIdText = columnValuesList[0]
     val warehouseNameText = columnValuesList[1]
     val warehouseregionalZoneText = columnValuesList[2]
 
-    return Warehouse(warehouseIdText, warehouseNameText, warehouseregionalZoneText)
+    return WarehouseRaw(warehouseIdText, warehouseNameText, warehouseregionalZoneText)
 }
 
-fun buildRouteFromColumns(columnValuesList: List<String>): RouteRecord {
+fun buildRouteFromColumns(columnValuesList: List<String>): RouteRaw {
     val routeIdText = columnValuesList[0]
     val originHubIdText = columnValuesList[1]
     val destinationHubIdText = columnValuesList[2]
     val distanceKmValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
-    val typicalDelayMin = convertTextToDecimalNumberOrDefault(columnValuesList[4])
+    val typicalDelayMinValue = convertTextToIntegerOrDefault(columnValuesList[4])
 
-    return RouteRecord(routeIdText, originHubIdText, destinationHubIdText, distanceKmValue,typicalDelayMin)
+    return RouteRaw(routeIdText, originHubIdText, destinationHubIdText, distanceKmValue, typicalDelayMinValue)
 }
 
-fun buildFleetFromColumns(columnValuesList: List<String>): Fleet {
+fun buildFleetFromColumns(columnValuesList: List<String>): FleetRaw {
     val vehicleIdText = columnValuesList[0]
     val currentHubIdText = columnValuesList[1]
     val maxCapacityKgValue  = convertTextToDecimalNumberOrDefault(columnValuesList[2])
     val costPerKmValue = convertTextToDecimalNumberOrDefault(columnValuesList[3])
 
-    return Fleet(vehicleIdText, currentHubIdText, maxCapacityKgValue, costPerKmValue)
+    return FleetRaw(vehicleIdText, currentHubIdText, maxCapacityKgValue, costPerKmValue)
 }
 
-fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProcess: String): List<Any> {
+fun processCsvFileLinesToEntities(csvFileLines:List<String>, entityTypeToProcess: String): List<Any> {
     val createdEntitiesList = mutableListOf<Any>()
-    val cleanedCsvDataLinesOnly = removeHeaderAndEmptyLines(csvFileLines)
+    val cleanedCsvDataLinesOnly = ClenTheData(csvFileLines)
 
     for (lineIndex in 0 until cleanedCsvDataLinesOnly.size) {
         val singleLineText = cleanedCsvDataLinesOnly[lineIndex]
