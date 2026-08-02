@@ -6,7 +6,15 @@ fun main() {
     val routeLines = readLinesFromCsvFile("src/main/resources/routes.csv")
     val fleetLines = readLinesFromCsvFile("src/main/resources/fleet.csv")
 
-    val packages = processCsvFileLinesToEntities(packageLines, "PACKAGE").filterIsInstance<PackageRaw>()
+    val rawPackages = processCsvFileLinesToEntities(packageLines, "PACKAGE")
+    val packages = mutableListOf<PackageRaw>()
+    for (packageIndex in 0 until rawPackages.size) {
+        val entity = rawPackages[packageIndex]
+        if (entity is PackageRaw) {
+            packages.add(entity)
+        }
+    }
+
     val warehouses = processCsvFileLinesToEntities(warehouseLines, "WAREHOUSE")
     val routes = processCsvFileLinesToEntities(routeLines, "ROUTE")
     val fleet = processCsvFileLinesToEntities(fleetLines, "FLEET")
