@@ -14,33 +14,6 @@ fun readLinesFromCsvFile(filePathOnDisk: String): List<String> {
     }
 }
 
-fun validateLineCommasCounter(currentLine: String, lineNumber: Int, expectedCommas: Int) :Int {
-    var validLines = 0
-    val currentLineCommas = countCommasForHeaders(currentLine)
-    if (currentLineCommas != expectedCommas) {
-        if (currentLineCommas < expectedCommas) {
-            println("WARNING--- : in line number $lineNumber there is a deleted value")
-        } else {
-            println("WARNING--- : in line number $lineNumber there is an extra value")
-        }
-    } else {
-        println("Line $lineNumber comma structure is valid.")
-        validLines++
-    }
-    return validLines
-}
-
-
-fun countCommasForHeaders(text: String): Int {
-    var commasCount = 0
-    var charIndex = 0
-    while (charIndex < text.length) {
-        if (text[charIndex] == ',') { commasCount++ }
-        charIndex++
-    }
-    return commasCount
-}
-
 fun trimSpacesFromEdges(textToClean: String): String {
     var startPointer = 0
     var endPointer = textToClean.length - 1
@@ -145,25 +118,34 @@ fun convertTextToDecimalNumberOrDefault(textToConvert: String): Double {
 }
 
 fun checkIfPackageDataIsValid(columnValuesList: List<String>): Boolean {
-    if (columnValuesList.size < 4) return false
-    if (columnValuesList[3].isEmpty()) return false
+    if (columnValuesList.size != 4) {
+        return false
+    }
+    if (columnValuesList[0].isEmpty()) return false
+    if (columnValuesList[2].isEmpty()) return false
     return true
 }
 
 fun checkIfWarehouseDataIsValid(columnValuesList: List<String>): Boolean {
-    if (columnValuesList.size < 4) return false
+    if (columnValuesList.size != 3) {
+        return false
+    }
     if (columnValuesList[0].isEmpty()) return false
     return true
 }
 
 fun checkIfRouteDataIsValid(columnValuesList: List<String>): Boolean {
-    if (columnValuesList.size < 4) return false
+    if (columnValuesList.size != 5) {
+        return false
+    }
     if (columnValuesList[0].isEmpty()) return false
     return true
 }
 
 fun checkIfFleetDataIsValid(columnValuesList: List<String>): Boolean {
-    if (columnValuesList.size < 4) return false
+    if (columnValuesList.size != 4) {
+        return false
+    }
     if (columnValuesList[0].isEmpty()) return false
     return true
 }
@@ -205,47 +187,57 @@ fun buildFleetFromColumns(columnValuesList: List<String>): FleetRaw {
     return FleetRaw(vehicleIdText, currentHubIdText, maxCapacityKgValue, costPerKmValue)
 }
 
-fun processCsvFileLinesToEntities(csvFileLines:List<String>, entityTypeToProcess: String): List<Any> {
+fun processPackageLine(lineText: String, createdEntitiesList: MutableList<Any>, lineIndex: Int): Boolean {
+    val extractedColumnValuesList = splitCsvLineByComma(lineText)
+    if (checkIfPackageDataIsValid(extractedColumnValuesList)) {
+        createdEntitiesList.add(buildPackageFromColumns(extractedColumnValuesList))
+        return true
+    }
+    println("Warning: package row has missing required fields: $lineText")
+    return false
+}
+
+fun processWarehouseLine(lineText: String, createdEntitiesList: MutableList<Any>, lineIndex: Int): Boolean {
+    val extractedColumnValuesList = splitCsvLineByComma(lineText)
+    if (checkIfWarehouseDataIsValid(extractedColumnValuesList)) {
+        createdEntitiesList.add(buildWarehouseFromColumns(extractedColumnValuesList))
+        return true
+    }
+    println("Warning: warehouse row has missing required fields: $lineText")
+    return false
+}
+
+fun processRouteLine(lineText: String, createdEntitiesList: MutableList<Any>, lineIndex: Int): Boolean {
+    val extractedColumnValuesList = splitCsvLineByComma(lineText)
+    if (checkIfRouteDataIsValid(extractedColumnValuesList)) {
+        createdEntitiesList.add(buildRouteFromColumns(extractedColumnValuesList))
+        return true
+    }
+    println("Warning: route row has missing required fields: $lineText")
+    return false
+}
+
+fun processFleetLine(lineText: String, createdEntitiesList: MutableList<Any>, lineIndex: Int): Boolean {
+    val extractedColumnValuesList = splitCsvLineByComma(lineText)
+    if (checkIfFleetDataIsValid(extractedColumnValuesList)) {
+        createdEntitiesList.add(buildFleetFromColumns(extractedColumnValuesList))
+        return true
+    }
+    println("Warning: fleet row has missing required fields: $lineText")
+    return false
+}
+
+fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProcess: String): List<Any> {
     val createdEntitiesList = mutableListOf<Any>()
     val cleanedCsvDataLinesOnly = ClenTheData(csvFileLines)
 
     for (lineIndex in 0 until cleanedCsvDataLinesOnly.size) {
         val singleLineText = cleanedCsvDataLinesOnly[lineIndex]
-        val extractedColumnValuesList = splitCsvLineByComma(singleLineText)
-
         when (entityTypeToProcess) {
-            "PACKAGE" -> {
-                if (checkIfPackageDataIsValid(extractedColumnValuesList)) {
-                    val createdPackageEntity = buildPackageFromColumns(extractedColumnValuesList)
-                    createdEntitiesList.add(createdPackageEntity)
-                } else {
-                    println("Warning: Skipping malformed package row at index $lineIndex.")
-                }
-            }
-            "WAREHOUSE" -> {
-                if (checkIfWarehouseDataIsValid(extractedColumnValuesList)) {
-                    val createdWarehouseEntity = buildWarehouseFromColumns(extractedColumnValuesList)
-                    createdEntitiesList.add(createdWarehouseEntity)
-                } else {
-                    println("Warning: Skipping malformed warehouse row at index $lineIndex.")
-                }
-            }
-            "ROUTE" -> {
-                if (checkIfRouteDataIsValid(extractedColumnValuesList)) {
-                    val createdRouteEntity = buildRouteFromColumns(extractedColumnValuesList)
-                    createdEntitiesList.add(createdRouteEntity)
-                } else {
-                    println("Warning: Skipping malformed route row at index $lineIndex.")
-                }
-            }
-            "FLEET" -> {
-                if (checkIfFleetDataIsValid(extractedColumnValuesList)) {
-                    val createdFleetEntity = buildFleetFromColumns(extractedColumnValuesList)
-                    createdEntitiesList.add(createdFleetEntity)
-                } else {
-                    println("Warning: Skipping malformed Fleet row at index $lineIndex.")
-                }
-            }
+            "PACKAGE" -> processPackageLine(singleLineText, createdEntitiesList, lineIndex)
+            "WAREHOUSE" -> processWarehouseLine(singleLineText, createdEntitiesList, lineIndex)
+            "ROUTE" -> processRouteLine(singleLineText, createdEntitiesList, lineIndex)
+            "FLEET" -> processFleetLine(singleLineText, createdEntitiesList, lineIndex)
         }
     }
     return createdEntitiesList
