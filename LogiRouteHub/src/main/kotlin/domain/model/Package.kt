@@ -1,9 +1,11 @@
 package domain.model
 
-class Package(
+import data.dataholders.Priority
+
+data class Package(
     val id: String,
     val weight: Double,
-    val priority: Int,
-    val origin: Warehouse,
-    val destination: Warehouse
+    val priority: Priority,
+    val originHub: Warehouse,
+    val destinationHub: Warehouse
 )
