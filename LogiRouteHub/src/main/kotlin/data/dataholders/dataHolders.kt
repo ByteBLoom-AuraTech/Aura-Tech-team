@@ -1,6 +1,6 @@
 package LogiRouteHub
 
-import java.io.File
+
 
 
 enum class Priority(val rank: Int) {
@@ -31,7 +31,7 @@ data class PackageRaw(
     val id: String,
     val weight: Double,
     val destinationHubId: String,
-    val priority: String
+    val priority: Priority
 )
 
 data class RouteRaw(
@@ -48,10 +48,3 @@ data class WarehouseRaw(
     val regionalZone: String
 )
 
-fun readFile(filePath: String){
-    val file = File(filePath)
-    if (!file.exists()) return
-    val fileContent = file.readText()
-    val startIndex = skipHeader(fileContent)
-    processDataLines(fileContent, startIndex)
-}

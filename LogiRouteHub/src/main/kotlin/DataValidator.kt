@@ -193,6 +193,7 @@ fun processPackageLine(lineText: String, createdEntitiesList: MutableList<Any>, 
         createdEntitiesList.add(buildPackageFromColumns(extractedColumnValuesList))
         return true
     }
+    println("Warning: package row has missing required fields: $lineText")
     return false
 }
 
@@ -202,6 +203,7 @@ fun processWarehouseLine(lineText: String, createdEntitiesList: MutableList<Any>
         createdEntitiesList.add(buildWarehouseFromColumns(extractedColumnValuesList))
         return true
     }
+    println("Warning: warehouse row has missing required fields: $lineText")
     return false
 }
 
@@ -211,6 +213,7 @@ fun processRouteLine(lineText: String, createdEntitiesList: MutableList<Any>, li
         createdEntitiesList.add(buildRouteFromColumns(extractedColumnValuesList))
         return true
     }
+    println("Warning: route row has missing required fields: $lineText")
     return false
 }
 
@@ -220,28 +223,22 @@ fun processFleetLine(lineText: String, createdEntitiesList: MutableList<Any>, li
         createdEntitiesList.add(buildFleetFromColumns(extractedColumnValuesList))
         return true
     }
+    println("Warning: fleet row has missing required fields: $lineText")
     return false
 }
 
 fun processCsvFileLinesToEntities(csvFileLines: List<String>, entityTypeToProcess: String): List<Any> {
     val createdEntitiesList = mutableListOf<Any>()
     val cleanedCsvDataLinesOnly = ClenTheData(csvFileLines)
-    var skippedCount = 0
 
     for (lineIndex in 0 until cleanedCsvDataLinesOnly.size) {
         val singleLineText = cleanedCsvDataLinesOnly[lineIndex]
-        val wasSuccessful = when (entityTypeToProcess) {
+        when (entityTypeToProcess) {
             "PACKAGE" -> processPackageLine(singleLineText, createdEntitiesList, lineIndex)
             "WAREHOUSE" -> processWarehouseLine(singleLineText, createdEntitiesList, lineIndex)
             "ROUTE" -> processRouteLine(singleLineText, createdEntitiesList, lineIndex)
             "FLEET" -> processFleetLine(singleLineText, createdEntitiesList, lineIndex)
-            else -> true
         }
-        if (!wasSuccessful) skippedCount++
-    }
-
-    if (skippedCount > 0) {
-        println("Warning: Skipped $skippedCount malformed $entityTypeToProcess row(s).")
     }
     return createdEntitiesList
 }

@@ -17,3 +17,6 @@ complexity:
     active: true
     threshold: 30 # Function length limit set to 30 lines
     ignoreAnnotated: []
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 25
