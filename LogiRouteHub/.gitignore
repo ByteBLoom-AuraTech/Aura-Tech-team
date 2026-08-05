@@ -1,5 +1,72 @@
+# ==========================================
+# Kotlin & Gradle Build Files
+# ==========================================
 .gradle/
-/.gradle/
 build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Kotlin Multiplatform / Native targets
+.kotlin/
+kotlin-js-store/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log files
+*.log
+
+# Captures and snapshots
+*.hprof
+
+# ==========================================
+# IntelliJ IDEA
+# ==========================================
+# User-specific options
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionary.xml
+.idea/shelf/
+.idea/contentModel.xml
+
+# Sensitive data / Local environment settings
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/gradle.xml
+.idea/jarRepositories.xml
+
+# Sensitive files
+*.keystore
+*.jks
+*.p12
+*.pem
+
+# Generated files
 out/
-.idea/
+
+# Android Studio / IntelliJ project cache
+.idea/caches/
+.idea/libraries/
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.stackdump
