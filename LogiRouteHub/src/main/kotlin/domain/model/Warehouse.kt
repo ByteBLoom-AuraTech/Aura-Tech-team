@@ -1,6 +1,8 @@
 package domain.model
 
-class Warehouse(
+import algorithm.CargoQueueQuickSort
+
+data class Warehouse(
     val id: String,
     val name: String,
     val regionalZone: String
@@ -29,5 +31,10 @@ class Warehouse(
         if (!_stationedVehicles.contains(vehicle)) {
             _stationedVehicles.add(vehicle)
         }
+    }
+    private val cargoSorter = CargoQueueQuickSort()
+
+    fun sortCargoQueue() {
+        cargoSorter.sortPackagesByWeightDescending(_cargoQueue)
     }
 }
