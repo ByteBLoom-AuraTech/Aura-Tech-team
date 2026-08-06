@@ -6,7 +6,7 @@ import data.dataholders.RouteRaw
 import data.dataholders.WarehouseRaw
 import java.io.File
 
-private const val RESOURCE_PATH = "src/main/resources2"
+private const val RESOURCE_PATH = "src/main/resources"
 
 fun loadPackages(): List<PackageRaw> {
     val lines = readLines("packages.csv")
