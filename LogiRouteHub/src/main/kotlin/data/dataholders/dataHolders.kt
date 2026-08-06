@@ -1,4 +1,4 @@
-package LogiRouteHub
+package data.dataholders
 
 
 
@@ -31,6 +31,7 @@ data class PackageRaw(
     val id: String,
     val weight: Double,
     val destinationHubId: String,
+    val originHubId: String,
     val priority: Priority
 )
 
