@@ -1,6 +1,5 @@
 package domain.pricing
 
-import LogiRouteHub.Priority
 
 class FragileStrategy : DispatchStrategy {
 
