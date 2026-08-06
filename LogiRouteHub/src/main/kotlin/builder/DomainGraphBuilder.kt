@@ -72,7 +72,7 @@ class DomainGraphBuilder {
             Package(
                 id = it.id,
                 weight = it.weight,
-                priority = it.priority,
+                priority = domain.model.Priority.valueOf(it.priority.name),
                 originHub = warehouseIndex.getValue(it.originHubId),
                 destinationHub = warehouseIndex.getValue(it.destinationHubId)
             )
