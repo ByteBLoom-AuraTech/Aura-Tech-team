@@ -22,4 +22,5 @@ fun PackageAssignmentAudit() {
         if (oldMapping.vehicleId == "V40") { check(newMapping.vehicleId == "V65") }
         else {check(newMapping.vehicleId == oldMapping.vehicleId) }
     }
+
 }
