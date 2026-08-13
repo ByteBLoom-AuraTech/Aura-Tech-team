@@ -32,7 +32,7 @@ data class PackageRaw(
     val weight: Double,
     val destinationHubId: String,
     val originHubId: String,
-    val priority: domain.model.Priority
+    val priority: Priority
 )
 
 data class RouteRaw(
