@@ -54,14 +54,21 @@ class DomainGraphBuilder {
         vehicles: List<FleetRaw>,
         warehouseIndex: Map<String, Warehouse>
     ): List<Vehicle> {
-        return vehicles.map {
-            Vehicle(
-                id = it.vehicleId,
-                maxCapacityKg = it.maxCapacityKg,
-                costPerKm = it.costPerKm,
-                currentHub = warehouseIndex.getValue(it.currentHubId)
-            )
+        val vehicleList = mutableListOf<Vehicle>()
+        for (fleetRaw in vehicles) {
+            val currentHub = warehouseIndex.getValue(fleetRaw.currentHubId)
+            for (vehicleId in fleetRaw.vehicleIds) {
+                vehicleList.add(
+                    Vehicle(
+                        id = vehicleId,
+                        maxCapacityKg = fleetRaw.maxCapacityKg,
+                        costPerKm = fleetRaw.costPerKm,
+                        currentHub = currentHub
+                    )
+                )
+            }
         }
+        return vehicleList
     }
 
     private fun buildPackageList(
@@ -85,7 +92,7 @@ class DomainGraphBuilder {
     ): List<Route> {
         return routes.map {
             Route(
-                id = it.routeId,
+                id = it.id,
                 distanceKm = it.distanceKm,
                 typicalDelayMin = it.typicalDelayMin,
                 origin = warehouseIndex.getValue(it.originHubId),
