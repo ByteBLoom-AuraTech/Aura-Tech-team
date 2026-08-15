@@ -1,25 +1,32 @@
-package data.processing
+package data.processing.loaders
 
 import data.dataholders.*
 import data.processing.parser.*
 
-fun loadPackages(): List<PackageRaw> {
-    val lines = readCsvLines("packages.csv")
-    return parsePackages(lines)
+class PackageLoader(private val fileName: String) {
+    fun loadPackages(): List<PackageRaw> {
+        val lines = readCsvLines(fileName)
+        return parsePackages(lines)
+    }
 }
 
-fun loadRoutes(): List<RouteRaw> {
-    val lines = readCsvLines("routes.csv")
-    return parseRoutes(lines)
+class RouteLoader(private val fileName: String) {
+    fun loadRoutes(): List<RouteRaw> {
+        val lines = readCsvLines(fileName)
+        return parseRoutes(lines)
+    }
 }
 
-fun loadFleets(): List<FleetRaw> {
-    val lines = readCsvLines("fleet.csv")
-    return parseFleet(lines)
+class VehicleLoader(private val fileName: String) {
+    fun loadFleets(): List<FleetRaw> {
+        val lines = readCsvLines(fileName)
+        return parseFleet(lines)
+    }
 }
 
-fun loadWarehouses(): List<WarehouseRaw> {
-    val lines = readCsvLines("warehouses.csv")
-    return parseWarehouses(lines)
+class WarehouseLoader(private val fileName: String) {
+    fun loadWarehouses(): List<WarehouseRaw> {
+        val lines = readCsvLines(fileName)
+        return parseWarehouses(lines)
+    }
 }
-
