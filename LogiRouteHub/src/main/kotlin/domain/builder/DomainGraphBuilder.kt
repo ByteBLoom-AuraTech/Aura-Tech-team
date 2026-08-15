@@ -9,8 +9,17 @@ import data.dataholders.FleetRaw
 import data.dataholders.PackageRaw
 import data.dataholders.RouteRaw
 import data.dataholders.WarehouseRaw
+import data.repository.PackageRepository
+import data.repository.RouteRepository
+import data.repository.VehicleRepository
+import data.repository.WarehouseRepository
 
-class DomainGraphBuilder {
+class DomainGraphBuilder(
+    private val warehouseRepository: WarehouseRepository,
+    private val packageRepository: PackageRepository,
+    private val routeRepository: RouteRepository,
+    private val vehicleRepository: VehicleRepository
+){
 
     private fun buildWarehouseIndex(
         warehouses: List<WarehouseRaw>
@@ -118,12 +127,11 @@ class DomainGraphBuilder {
         }
     }
 
-    fun buildGraph(
-        warehouses: List<WarehouseRaw>,
-        packages: List<PackageRaw>,
-        vehicles: List<FleetRaw>,
-        routes: List<RouteRaw>
-    ): List<Warehouse> {
+    fun buildGraph(): List<Warehouse> {
+        val warehouses = warehouseRepository.getAll()
+        val packages = packageRepository.getAll()
+        val vehicles = vehicleRepository.getAll()
+        val routes = routeRepository.getAll()
         val warehouseIndex = buildWarehouseIndex(warehouses)
         val warehouseList = warehouseIndex.values.toList()
 
