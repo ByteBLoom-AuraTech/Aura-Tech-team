@@ -9,17 +9,8 @@ import data.dataholders.FleetRaw
 import data.dataholders.PackageRaw
 import data.dataholders.RouteRaw
 import data.dataholders.WarehouseRaw
-import data.repository.PackageRepository
-import data.repository.RouteRepository
-import data.repository.VehicleRepository
-import data.repository.WarehouseRepository
 
-class DomainGraphBuilder(
-    private val warehouseRepository: WarehouseRepository,
-    private val packageRepository: PackageRepository,
-    private val routeRepository: RouteRepository,
-    private val vehicleRepository: VehicleRepository
-){
+class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
 
     private fun buildWarehouseIndex(
         warehouses: List<WarehouseRaw>
@@ -127,20 +118,26 @@ class DomainGraphBuilder(
         }
     }
 
+    private fun loadRawGraphData(): RawGraphData {
+        return RawGraphData(
+            warehouses = domainGraphInput.warehouseRepository.getAll(),
+            packages = domainGraphInput.packageRepository.getAll(),
+            vehicles = domainGraphInput.vehicleRepository.getAll(),
+            routes = domainGraphInput.routeRepository.getAll()
+        )
+    }
+
     fun buildGraph(): List<Warehouse> {
-        val warehouses = warehouseRepository.getAll()
-        val packages = packageRepository.getAll()
-        val vehicles = vehicleRepository.getAll()
-        val routes = routeRepository.getAll()
-        val warehouseIndex = buildWarehouseIndex(warehouses)
+        val rawGraphData = loadRawGraphData()
+        val warehouseIndex = buildWarehouseIndex(rawGraphData.warehouses)
         val warehouseList = warehouseIndex.values.toList()
 
-        val validPackages = filterValidPackages(packages, warehouseIndex)
-        val validVehicles = filterValidVehicles(vehicles, warehouseIndex)
-        val validRoutes = filterValidRoutes(routes, warehouseIndex)
-        val vehicleList = buildVehicleList(validVehicles, warehouseIndex)
-        val packageList = buildPackageList(validPackages, warehouseIndex)
-        val routeList = buildRouteList(validRoutes, warehouseIndex)
+        val validPackages = filterValidPackages(rawGraphData.packages,warehouseIndex)
+        val validVehicles = filterValidVehicles(rawGraphData.vehicles,warehouseIndex)
+        val validRoutes = filterValidRoutes(rawGraphData.routes,warehouseIndex)
+        val vehicleList = buildVehicleList( validVehicles,warehouseIndex)
+        val packageList = buildPackageList(validPackages,warehouseIndex)
+        val routeList = buildRouteList(validRoutes,warehouseIndex)
 
         connectGraph(
             warehouseList,
