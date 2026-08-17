@@ -6,6 +6,6 @@ class FragileHandlingDecorator(wrap: PackageComponent , private val fragile: Dou
         return baseRate + (baseRate * AuraFees)
     }
     override fun getDescription(): String {
-        return wrap.getDescription() + "Fragile Handling"
+        return wrap.getDescription() + " Fragile Handling"
     }
 }

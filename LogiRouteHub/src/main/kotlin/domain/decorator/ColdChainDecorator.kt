@@ -6,6 +6,6 @@ class ColdChainDecorator(wrap: PackageComponent , private val coldChain: Double)
         return baseRate + (baseRate * AuraFees)
     }
     override fun getDescription(): String {
-        return wrap.getDescription() + "Cold Chain"
+        return wrap.getDescription() + " Cold Chain"
     }
 }
