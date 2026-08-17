@@ -11,7 +11,6 @@ class BreadthFirstSearchRouter {
         if (startWarehouse == destinationWarehouse){
             return listOf(startWarehouse)
         }
-
         val queue = ArrayDeque<Warehouse>()
         val visited = mutableSetOf<Warehouse>()
         val parent = mutableMapOf<Warehouse,Warehouse>()
@@ -19,18 +18,20 @@ class BreadthFirstSearchRouter {
         queue.addLast(startWarehouse)
         visited.add(startWarehouse)
 
-        while (queue.isNotEmpty()){
-          val currentWarehouse= queue.removeFirst()
-          for(route in currentWarehouse.outgoingRoutes){
+        while (queue.isNotEmpty()) {
+          val currentWarehouse = queue.removeFirst()
+          for(route in currentWarehouse.outgoingRoutes) {
              val nextWarehouse = route.destination
               if (visitWarehouse(
                       nextWarehouse,
                       currentWarehouse,
-                      destinationWarehouse,
-                      queue,
                       visited,
-                      parent)){
-                  return buildPath(startWarehouse,destinationWarehouse,parent)
+                      parent
+              )){
+                if (nextWarehouse == destinationWarehouse) {
+                    return buildPath(startWarehouse, destinationWarehouse, parent)
+                }
+                  queue.addLast(nextWarehouse)
               }
           }
         }
@@ -40,21 +41,16 @@ class BreadthFirstSearchRouter {
     private fun visitWarehouse(
         nextWarehouse: Warehouse,
         currentWarehouse: Warehouse,
-        destinationWarehouse: Warehouse,
-        queue: ArrayDeque<Warehouse>,
         visited: MutableSet<Warehouse>,
-        parent: MutableMap<Warehouse,Warehouse>
+        parent: MutableMap<Warehouse, Warehouse>
     ): Boolean{
         if (nextWarehouse in visited){
              return false
         }
         visited.add(nextWarehouse)
         parent[nextWarehouse] = currentWarehouse
-        if (nextWarehouse==destinationWarehouse){
-            return true
-        }
-        queue.addLast(nextWarehouse)
-        return false
+
+        return true
     }
 
    private fun buildPath(
