@@ -22,16 +22,11 @@ class BreadthFirstSearchRouter {
           val currentWarehouse = queue.removeFirst()
           for(route in currentWarehouse.outgoingRoutes) {
              val nextWarehouse = route.destination
-              if (visitWarehouse(
-                      nextWarehouse,
-                      currentWarehouse,
-                      visited,
-                      parent
-              )){
-                if (nextWarehouse == destinationWarehouse) {
-                    return buildPath(startWarehouse, destinationWarehouse, parent)
-                }
-                  queue.addLast(nextWarehouse)
+              when {
+                  !visitWarehouse(nextWarehouse, currentWarehouse, visited, parent) -> {}
+                  nextWarehouse == destinationWarehouse ->
+                      return buildPath(startWarehouse, destinationWarehouse, parent)
+                  else -> queue.addLast(nextWarehouse)
               }
           }
         }
@@ -43,13 +38,13 @@ class BreadthFirstSearchRouter {
         currentWarehouse: Warehouse,
         visited: MutableSet<Warehouse>,
         parent: MutableMap<Warehouse, Warehouse>
-    ): Boolean{
-        if (nextWarehouse in visited){
-             return false
+    ): Boolean {
+        if (nextWarehouse in visited) {
+            return false
         }
+
         visited.add(nextWarehouse)
         parent[nextWarehouse] = currentWarehouse
-
         return true
     }
 
