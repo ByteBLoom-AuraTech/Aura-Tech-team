@@ -1,4 +1,4 @@
-package data.repository
+package domain.repository
 
 import data.dataholders.WarehouseRaw
 
