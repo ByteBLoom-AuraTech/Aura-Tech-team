@@ -1,4 +1,4 @@
-package algorithm
+package domain.logic.algorithms
 
 import domain.model.Package
 
