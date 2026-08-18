@@ -23,7 +23,7 @@ class BreadthFirstSearchRouter {
             return true
         }
 
-         fun buildPath(
+        fun buildPath(
             destinationWarehouse: Warehouse
         ): List<Warehouse> {
             val path = mutableListOf<Warehouse>()
