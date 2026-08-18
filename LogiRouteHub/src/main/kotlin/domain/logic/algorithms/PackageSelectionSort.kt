@@ -2,13 +2,13 @@ package sorting
 
 
 import data.dataholders.PackageRaw
-import data.dataholders.Priority
+import data.dataholders.PriorityRaw
 
-fun getPriorityRank(priority: Priority): Int {
+fun getPriorityRank(priority: PriorityRaw): Int {
     return when (priority) {
-        Priority.URGENT -> 3
-        Priority.STANDARD -> 2
-        Priority.LOW -> 1
+        PriorityRaw.URGENT -> 3
+        PriorityRaw.STANDARD -> 2
+        PriorityRaw.LOW -> 1
     }
 }
 
