@@ -1,8 +1,8 @@
 package data.repository.csv
 
 import data.dataholders.FleetRaw
-import data.processing.loaders.VehicleLoader
-import data.repository.VehicleRepository
+import data.processing.loader.VehicleLoader
+import domain.repository.VehicleRepository
 
 class CsvVehicleRepository(
     private val loader: VehicleLoader

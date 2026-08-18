@@ -1,8 +1,8 @@
 package data.repository.csv
 
 import data.dataholders.PackageRaw
-import data.processing.loaders.PackageLoader
-import data.repository.PackageRepository
+import data.processing.loader.PackageLoader
+import domain.repository.PackageRepository
 
 class CsvPackageRepository(
     private val loader: PackageLoader

@@ -1,6 +1,6 @@
 package domain.model
 
-import algorithm.CargoQueueQuickSort
+import domain.logic.algorithms.CargoQueueQuickSort
 
 data class Warehouse(
     val id: String,
