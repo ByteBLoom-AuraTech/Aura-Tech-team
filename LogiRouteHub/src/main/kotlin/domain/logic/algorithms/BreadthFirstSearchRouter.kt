@@ -45,6 +45,9 @@ class BreadthFirstSearchRouter {
             return listOf(startWarehouse)
         }
         val searchState = BfsSearchState(startWarehouse)
+        searchState.queue.addLast(startWarehouse)
+        searchState.visited.add(startWarehouse)
+
         while (searchState.queue.isNotEmpty()) {
             val currentWarehouse = searchState.queue.removeFirst()
             for (route in currentWarehouse.outgoingRoutes) {
