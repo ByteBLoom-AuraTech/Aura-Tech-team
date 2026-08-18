@@ -1,4 +1,4 @@
-package domain.logic.pricing.decorator
+package domain.logic.pricing.packagefees
 
 interface PackageComponent {
 
