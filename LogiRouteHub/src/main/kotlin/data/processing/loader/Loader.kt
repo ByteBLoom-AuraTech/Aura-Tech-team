@@ -1,4 +1,4 @@
-package data.processing.loaders
+package data.processing.loader
 
 import data.dataholders.*
 import data.processing.parser.*

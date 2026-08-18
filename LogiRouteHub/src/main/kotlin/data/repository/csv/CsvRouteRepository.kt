@@ -1,8 +1,8 @@
 package data.repository.csv
 
 import data.dataholders.RouteRaw
-import data.processing.loaders.RouteLoader
-import data.repository.RouteRepository
+import data.processing.loader.RouteLoader
+import domain.repository.RouteRepository
 
 class CsvRouteRepository(
     private val loader: RouteLoader
