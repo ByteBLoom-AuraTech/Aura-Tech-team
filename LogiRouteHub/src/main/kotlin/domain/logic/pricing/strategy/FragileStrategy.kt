@@ -1,6 +1,6 @@
 package domain.pricing
-import domain.model.Priority
 
+import domain.model.Priority
 
 class FragileStrategy : DispatchStrategy {
 
@@ -24,5 +24,4 @@ class FragileStrategy : DispatchStrategy {
             Priority.LOW -> 0.8
         }
     }
-
 }

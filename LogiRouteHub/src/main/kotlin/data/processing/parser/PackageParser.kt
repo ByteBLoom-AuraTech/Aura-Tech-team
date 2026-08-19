@@ -10,13 +10,17 @@ private const val DESTINATION_HUB_ID_INDEX = 3
 private const val PACKAGE_PRIORITY_INDEX = 4
 
 fun parsePackages(lines: List<String>): List<PackageRaw> {
-    if (lines.isEmpty()) return emptyList()
+    if (lines.isEmpty()) {
+        return emptyList()
+    }
 
     val expectedColumnCount = getExpectedColumnCount(lines.first())
     val packages = mutableListOf<PackageRaw>()
 
     for (line in skipHeader(lines)) {
-        if (line.isBlank()) continue
+        if (line.isBlank()) {
+            continue
+        }
 
         val columns = extractCleanColumns(line)
 
@@ -34,6 +38,7 @@ fun parsePackages(lines: List<String>): List<PackageRaw> {
             )
         )
     }
+
     return packages
 }
 

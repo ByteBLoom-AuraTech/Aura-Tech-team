@@ -2,9 +2,9 @@ package LogiRouteHub
 
 import algorithm.*
 import builder.*
-import domain.model.Warehouse
 import data.processing.loader.*
 import data.repository.csv.*
+import domain.model.Warehouse
 
 fun main() {
     println("LogiRouteHub System")
@@ -46,7 +46,9 @@ private fun buildDomainGraph(
 
     val builder = DomainGraphBuilder(domainGraphInput)
     val connectedWarehouses = builder.buildGraph()
+
     println("Connected hubs: ${connectedWarehouses.size}")
+
     return connectedWarehouses
 }
 
@@ -62,6 +64,7 @@ private fun testPricing(connectedWarehouses: List<Warehouse>) {
         println("Route Distance: ${sampleRoute.distanceKm} km")
 
         val basePrice = sampleRoute.distanceKm * 1.5
+
         println("Estimated Base Shipping Price: \$$basePrice")
     } else {
         println("No package or route available to test pricing.")
@@ -75,6 +78,7 @@ private fun testSorting(connectedWarehouses: List<Warehouse>) {
 
     if (firstHub != null && firstHub.cargoQueue.isNotEmpty()) {
         println("Before Sorting (${firstHub.id}):")
+
         firstHub.cargoQueue.forEachIndexed { index, pkg ->
             println("  $index: ${pkg.id} (${pkg.weight}kg)")
         }
@@ -82,6 +86,7 @@ private fun testSorting(connectedWarehouses: List<Warehouse>) {
         firstHub.sortCargoQueue()
 
         println("After Sorting (${firstHub.id})")
+
         firstHub.cargoQueue.forEachIndexed { index, pkg ->
             println("  $index: ${pkg.id} (${pkg.weight}kg)")
         }
@@ -94,6 +99,7 @@ private fun verifyGraph(connectedWarehouses: List<Warehouse>) {
     println("Quick Verification")
 
     val firstHub = connectedWarehouses.firstOrNull()
+
     if (firstHub != null) {
         println("First hub ID: ${firstHub.id} (${firstHub.name})")
         println("  Packages count: ${firstHub.cargoQueue.size}")
@@ -122,6 +128,7 @@ private fun testPackageAssignmentRing() {
     )
 
     println("--- INITIAL PACKAGE ASSIGNMENTS ---")
+
     initialDistribution.values.forEach { mapping ->
         println(mapping)
     }
@@ -131,10 +138,22 @@ private fun testPackageAssignmentRing() {
 
 private fun setupInitialVehicles(): List<RingVehicle> {
     return listOf(
-        RingVehicle(id = "Vehicle-15", slot = PackageAssignmentRing.VEHICLE_SLOT_A),
-        RingVehicle(id = "Vehicle-40", slot = PackageAssignmentRing.VEHICLE_SLOT_B),
-        RingVehicle(id = "Vehicle-65", slot = PackageAssignmentRing.VEHICLE_SLOT_C),
-        RingVehicle(id = "Vehicle-90", slot = PackageAssignmentRing.VEHICLE_SLOT_D)
+        RingVehicle(
+            id = "Vehicle-15",
+            slot = PackageAssignmentRing.VEHICLE_SLOT_A
+        ),
+        RingVehicle(
+            id = "Vehicle-40",
+            slot = PackageAssignmentRing.VEHICLE_SLOT_B
+        ),
+        RingVehicle(
+            id = "Vehicle-65",
+            slot = PackageAssignmentRing.VEHICLE_SLOT_C
+        ),
+        RingVehicle(
+            id = "Vehicle-90",
+            slot = PackageAssignmentRing.VEHICLE_SLOT_D
+        )
     )
 }
 
@@ -182,13 +201,24 @@ private fun verifyAndOutputResults(
             check(newMapping.vehicleSlot == expectedFallbackSlot) {
                 "Assertion Failure: Package $packageId failed to shift"
             }
-            println("[RE-ROUTED] Package [$packageId] -> Shifted to [${newMapping.vehicleId}]")
+
+            println(
+                "[RE-ROUTED] Package [$packageId] -> Shifted to [${newMapping.vehicleId}]"
+            )
+
             reroutedCargoCount++
         } else {
-            check(oldMapping.vehicleId == newMapping.vehicleId && oldMapping.vehicleSlot == newMapping.vehicleSlot) {
+            check(
+                oldMapping.vehicleId == newMapping.vehicleId &&
+                        oldMapping.vehicleSlot == newMapping.vehicleSlot
+            ) {
                 "Assertion Failure: Package $packageId illegally migrated"
             }
-            println("[UNCHANGED] Package [$packageId] -> Preserved on [${newMapping.vehicleId}]")
+
+            println(
+                "[UNCHANGED] Package [$packageId] -> Preserved on [${newMapping.vehicleId}]"
+            )
+
             unaffectedCargoCount++
         }
     }

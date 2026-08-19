@@ -10,13 +10,17 @@ private const val DISTANCE_KM_INDEX = 3
 private const val TYPICAL_DELAY_MIN_INDEX = 4
 
 fun parseRoutes(lines: List<String>): List<RouteRaw> {
-    if (lines.isEmpty()) return emptyList()
+    if (lines.isEmpty()) {
+        return emptyList()
+    }
 
     val expectedColumnCount = getExpectedColumnCount(lines.first())
     val routes = mutableListOf<RouteRaw>()
 
     for (line in skipHeader(lines)) {
-        if (line.isBlank()) continue
+        if (line.isBlank()) {
+            continue
+        }
 
         val columns = extractCleanColumns(line)
 
@@ -34,6 +38,7 @@ fun parseRoutes(lines: List<String>): List<RouteRaw> {
             )
         )
     }
+
     return routes
 }
 

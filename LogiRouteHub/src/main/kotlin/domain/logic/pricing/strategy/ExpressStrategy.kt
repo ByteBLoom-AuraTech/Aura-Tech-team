@@ -1,4 +1,5 @@
 package domain.pricing
+
 import domain.model.Priority
 
 class ExpressStrategy : DispatchStrategy {
@@ -21,5 +22,4 @@ class ExpressStrategy : DispatchStrategy {
             Priority.LOW -> 1.0
         }
     }
-
 }

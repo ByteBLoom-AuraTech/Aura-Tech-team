@@ -10,13 +10,17 @@ private const val LATITUDE_INDEX = 3
 private const val LONGITUDE_INDEX = 4
 
 fun parseWarehouses(lines: List<String>): List<WarehouseRaw> {
-    if (lines.isEmpty()) return emptyList()
+    if (lines.isEmpty()) {
+        return emptyList()
+    }
 
     val expectedColumnCount = getExpectedColumnCount(lines.first())
     val warehouses = mutableListOf<WarehouseRaw>()
 
     for (line in skipHeader(lines)) {
-        if (line.isBlank()) continue
+        if (line.isBlank()) {
+            continue
+        }
 
         val columns = extractCleanColumns(line)
 
@@ -34,6 +38,7 @@ fun parseWarehouses(lines: List<String>): List<WarehouseRaw> {
             )
         )
     }
+
     return warehouses
 }
 
@@ -62,6 +67,9 @@ private fun hasRequiredWarehouseFields(columns: List<String>): Boolean {
 }
 
 private fun parseCoordinate(value: String): Double {
-    if (value.trim().equals("N/A", ignoreCase = true)) return 0.0
+    if (value.trim().equals("N/A", ignoreCase = true)) {
+        return 0.0
+    }
+
     return value.trim().toDoubleOrNull() ?: 0.0
 }

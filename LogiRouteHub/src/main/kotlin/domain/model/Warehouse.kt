@@ -32,6 +32,7 @@ data class Warehouse(
             _stationedVehicles.add(vehicle)
         }
     }
+
     private val cargoSorter = CargoQueueQuickSort()
 
     fun sortCargoQueue() {

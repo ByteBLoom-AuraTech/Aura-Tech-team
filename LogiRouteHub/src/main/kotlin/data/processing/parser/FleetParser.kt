@@ -9,13 +9,17 @@ private const val MAX_CAPACITY_KG_INDEX = 2
 private const val COST_PER_KM_INDEX = 3
 
 fun parseFleet(lines: List<String>): List<FleetRaw> {
-    if (lines.isEmpty()) return emptyList()
+    if (lines.isEmpty()) {
+        return emptyList()
+    }
 
     val expectedColumnCount = getExpectedColumnCount(lines.first())
     val fleetList = mutableListOf<FleetRaw>()
 
     for (line in skipHeader(lines)) {
-        if (line.isBlank()) continue
+        if (line.isBlank()) {
+            continue
+        }
 
         val columns = extractCleanColumns(line)
 
@@ -32,6 +36,7 @@ fun parseFleet(lines: List<String>): List<FleetRaw> {
             )
         )
     }
+
     return fleetList
 }
 

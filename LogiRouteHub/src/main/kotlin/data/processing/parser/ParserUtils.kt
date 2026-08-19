@@ -5,12 +5,20 @@ import java.io.File
 
 fun readCsvLines(fileName: String): List<String> {
     val file = File("src/main/resources/$fileName")
-    if (!file.exists()) return emptyList()
+
+    if (!file.exists()) {
+        return emptyList()
+    }
+
     return file.readLines()
 }
 
 fun skipHeader(lines: List<String>): List<String> {
-    return if (lines.size > 1) lines.drop(1) else emptyList()
+    return if (lines.size > 1) {
+        lines.drop(1)
+    } else {
+        emptyList()
+    }
 }
 
 fun extractCleanColumns(line: String): List<String> {

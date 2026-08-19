@@ -1,8 +1,8 @@
 package domain.pricing
+
 import domain.model.Priority
 
-
-class EcoStrategy : DispatchStrategy{
+class EcoStrategy : DispatchStrategy {
 
     override fun calculateTransitCost(
         weight: Double,
@@ -15,12 +15,11 @@ class EcoStrategy : DispatchStrategy{
                 (distanceKm * distanceRate)
     }
 
-    override fun getPriorityMultiplier(priority: Priority): Double{
-        return  when (priority) {
+    override fun getPriorityMultiplier(priority: Priority): Double {
+        return when (priority) {
             Priority.URGENT -> 1.1
             Priority.STANDARD -> 1.0
             Priority.LOW -> 0.8
+        }
     }
-
-}
 }
