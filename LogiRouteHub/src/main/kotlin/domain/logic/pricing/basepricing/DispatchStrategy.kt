@@ -1,4 +1,4 @@
-package domain.pricing
+package domain.logic.pricing.basepricing
 import domain.model.Priority
 
 interface DispatchStrategy {

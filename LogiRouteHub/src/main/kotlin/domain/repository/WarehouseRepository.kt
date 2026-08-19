@@ -1,7 +1,7 @@
 package domain.repository
 
-import data.dataholders.WarehouseRaw
+import domain.model.Warehouse
 
 interface WarehouseRepository {
-    fun getAll(): List<WarehouseRaw>
+    fun getAll(): List<Warehouse>
 }

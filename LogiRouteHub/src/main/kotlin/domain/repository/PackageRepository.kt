@@ -1,7 +1,6 @@
 package domain.repository
-
-import data.dataholders.PackageRaw
+import domain.model.Package
 
 interface PackageRepository {
-    fun getAll(): List<PackageRaw>
+    fun getAll(): List<Package>
 }

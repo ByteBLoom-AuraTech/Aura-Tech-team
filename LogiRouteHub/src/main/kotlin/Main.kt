@@ -1,42 +1,36 @@
 package LogiRouteHub
 
-import algorithm.PackageAssignmentRing
-import algorithm.PackageMapping
-import algorithm.RingVehicle
-import algorithm.distributeAllPackages
-import algorithm.runOutageForBreakdown
-
-import builder.DomainGraphBuilder
+import LogiRouteHub.domain.builder.DomainGraphInput
+import algorithm.*
+import builder.*
 import domain.model.Warehouse
-
-import data.dataholders.RouteRaw
-import data.dataholders.PackageRaw
-import data.dataholders.WarehouseRaw
-import data.dataholders.FleetRaw
-
-import data.processing.loadFleets
-import data.processing.loadPackages
-import data.processing.loadRoutes
-import data.processing.loadWarehouses
-
-private data class RawData(
-    val warehouses: List<WarehouseRaw>,
-    val packages: List<PackageRaw>,
-    val vehicles: List<FleetRaw>,
-    val routes: List<RouteRaw>
-)
+import data.processing.loader.*
+import data.repository.csv.*
 
 fun main() {
     println("LogiRouteHub System")
 
-    val rawData = loadRawData()
+    val warehouseRepository = CsvWarehouseRepository(
+        WarehouseLoader("warehouses.csv")
+    )
+    val packageRepository = CsvPackageRepository(
+        PackageLoader("packages.csv")
+    )
+    val routeRepository = CsvRouteRepository(
+        RouteLoader("routes.csv")
+    )
+    val vehicleRepository = CsvVehicleRepository(
+        VehicleLoader("fleets.csv")
+    )
 
-    if (rawData.warehouses.isEmpty()) {
-        println("ERROR: No warehouses found. Cannot build the domain graph.")
-        return
-    }
+    val domainGraphInput = DomainGraphInput(
+        warehouseRepository = warehouseRepository,
+        packageRepository = packageRepository,
+        routeRepository = routeRepository,
+        vehicleRepository = vehicleRepository
+    )
 
-    val connectedWarehouses = buildDomainGraph(rawData)
+    val connectedWarehouses = buildDomainGraph(domainGraphInput)
 
     testPricing(connectedWarehouses)
     testSorting(connectedWarehouses)
@@ -46,26 +40,13 @@ fun main() {
     testPackageAssignmentRing()
 }
 
-private fun loadRawData(): RawData {
-    return RawData(
-        warehouses = loadWarehouses(),
-        packages = loadPackages(),
-        vehicles = loadFleets(),
-        routes = loadRoutes()
-    )
-}
-
-private fun buildDomainGraph(rawData: RawData): List<Warehouse> {
+private fun buildDomainGraph(
+    domainGraphInput: DomainGraphInput
+): List<Warehouse> {
     println("Building Domain Graph")
 
-    val builder = DomainGraphBuilder()
-    val connectedWarehouses = builder.buildGraph(
-        warehouses = rawData.warehouses,
-        packages = rawData.packages,
-        vehicles = rawData.vehicles,
-        routes = rawData.routes
-    )
-
+    val builder = DomainGraphBuilder(domainGraphInput)
+    val connectedWarehouses = builder.buildGraph()
     println("Connected hubs: ${connectedWarehouses.size}")
     return connectedWarehouses
 }
@@ -215,8 +196,8 @@ private fun verifyAndOutputResults(
 
     println("\n==================================================")
     println("VERIFICATION COMPLETE & ASSERTIONS PASSED:")
-    println("✓ Re-routed Packages: $reroutedCargoCount")
-    println("✓ Unaffected Packages: $unaffectedCargoCount")
+    println("[PASS] Re-routed Packages: $reroutedCargoCount")
+    println("[PASS] Unaffected Packages: $unaffectedCargoCount")
     println("==================================================")
 }
 
