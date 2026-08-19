@@ -2,5 +2,5 @@ package domain.logic.pricing.additionalpricing
 
 interface PackageComponent {
 
-    fun calculateTransitRate(baseTransitRate: Double): Double
+    fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double ): Double
 }

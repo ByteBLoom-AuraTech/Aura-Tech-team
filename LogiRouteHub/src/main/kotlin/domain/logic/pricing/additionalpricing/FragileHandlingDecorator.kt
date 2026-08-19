@@ -7,10 +7,10 @@ class FragileHandlingDecorator(
     private val additionalPricingConfig: AdditionalPricingConfig
 ) : PackageDecorator(packageComponent) {
 
-    override fun calculateTransitRate(baseTransitRate: Double): Double {
-        val decoratedTransitRate =
-            packageComponent.calculateTransitRate(baseTransitRate)
+    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
+        val baseRate = packageComponent.calculateTransitRate(baseTransitRate, AuraFees)
+        val addedFee = additionalPricingConfig.fragileHandlingFee
 
-        return decoratedTransitRate + additionalPricingConfig.fragileHandlingFee
+        return baseRate + addedFee + (addedFee * AuraFees)
     }
 }
