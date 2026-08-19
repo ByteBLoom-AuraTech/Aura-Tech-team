@@ -4,63 +4,63 @@ import domain.model.Warehouse
 
 class BreadthFirstSearchRouter {
 
-   fun findRoute(
-     startWarehouse: Warehouse,
-     destinationWarehouse: Warehouse
-   ): List<Warehouse> {
-        if (startWarehouse == destinationWarehouse){
-            return listOf(startWarehouse)
-        }
+    private class BfsSearchState(
+        val startWarehouse: Warehouse
+    ) {
         val queue = ArrayDeque<Warehouse>()
         val visited = mutableSetOf<Warehouse>()
-        val parent = mutableMapOf<Warehouse,Warehouse>()
+        val parent = mutableMapOf<Warehouse, Warehouse>()
 
-        queue.addLast(startWarehouse)
-        visited.add(startWarehouse)
-
-        while (queue.isNotEmpty()) {
-          val currentWarehouse = queue.removeFirst()
-          for(route in currentWarehouse.outgoingRoutes) {
-             val nextWarehouse = route.destination
-              when {
-                  !visitWarehouse(nextWarehouse, currentWarehouse, visited, parent) -> {}
-                  nextWarehouse == destinationWarehouse ->
-                      return buildPath(startWarehouse, destinationWarehouse, parent)
-                  else -> queue.addLast(nextWarehouse)
-              }
-          }
-        }
-        return emptyList()
-   }
-
-    private fun visitWarehouse(
-        nextWarehouse: Warehouse,
-        currentWarehouse: Warehouse,
-        visited: MutableSet<Warehouse>,
-        parent: MutableMap<Warehouse, Warehouse>
-    ): Boolean {
-        if (nextWarehouse in visited) {
-            return false
+        fun visitWarehouse(
+            nextWarehouse: Warehouse,
+            currentWarehouse: Warehouse
+        ): Boolean {
+            if (nextWarehouse in visited) {
+                return false
+            }
+            visited.add(nextWarehouse)
+            parent[nextWarehouse] = currentWarehouse
+            return true
         }
 
-        visited.add(nextWarehouse)
-        parent[nextWarehouse] = currentWarehouse
-        return true
+        fun buildPath(
+            destinationWarehouse: Warehouse
+        ): List<Warehouse> {
+            val path = mutableListOf<Warehouse>()
+            var currentWarehouse = destinationWarehouse
+            while (currentWarehouse != startWarehouse) {
+                path.add(currentWarehouse)
+                currentWarehouse = parent.getValue(currentWarehouse)
+            }
+            path.add(startWarehouse)
+            return path.reversed()
+        }
     }
 
-   private fun buildPath(
+    fun findRoute(
         startWarehouse: Warehouse,
-        destinationWarehouse: Warehouse,
-        parent: Map<Warehouse, Warehouse>
-   ): List<Warehouse> {
-        val path = mutableListOf<Warehouse>()
-        var currentWarehouse = destinationWarehouse
-
-        while (currentWarehouse != startWarehouse) {
-            path.add(currentWarehouse)
-            currentWarehouse = parent.getValue(currentWarehouse)
+        destinationWarehouse: Warehouse
+    ): List<Warehouse> {
+        if (startWarehouse == destinationWarehouse) {
+            return listOf(startWarehouse)
         }
-        path.add(startWarehouse)
-        return path.reversed()
-   }
+        val searchState = BfsSearchState(startWarehouse)
+        searchState.queue.addLast(startWarehouse)
+        searchState.visited.add(startWarehouse)
+
+        while (searchState.queue.isNotEmpty()) {
+            val currentWarehouse = searchState.queue.removeFirst()
+            for (route in currentWarehouse.outgoingRoutes) {
+                val nextWarehouse = route.destination
+                when {
+                    !searchState.visitWarehouse(nextWarehouse, currentWarehouse) -> {}
+                    nextWarehouse == destinationWarehouse ->
+                        return searchState.buildPath(destinationWarehouse)
+
+                    else -> searchState.queue.addLast(nextWarehouse)
+                }
+            }
+        }
+        return emptyList()
+    }
 }
