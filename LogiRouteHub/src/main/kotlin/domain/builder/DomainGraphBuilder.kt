@@ -1,105 +1,16 @@
-package builder
+package domain.builder
 
-import LogiRouteHub.domain.builder.DomainGraphInput
 import domain.model.Package
 import domain.model.Route
 import domain.model.Vehicle
 import domain.model.Warehouse
 
-import data.dataholders.FleetRaw
-import data.dataholders.PackageRaw
-import data.dataholders.RouteRaw
-import data.dataholders.WarehouseRaw
-
 class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
 
     private fun buildWarehouseIndex(
-        warehouses: List<WarehouseRaw>
+        warehouses: List<Warehouse>
     ): Map<String, Warehouse> {
-        val warehouseList = warehouses.map {
-            Warehouse(
-                id = it.id,
-                name = it.name,
-                regionalZone = it.regionalZone
-            )
-        }
-        return warehouseList.associateBy { it.id }
-    }
-
-    private fun filterValidPackages(
-        packages: List<PackageRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<PackageRaw> {
-        return packages.filter {
-            warehouseIndex.containsKey(it.originHubId) && warehouseIndex.containsKey(it.destinationHubId)
-        }
-    }
-
-    private fun filterValidVehicles(
-        vehicles: List<FleetRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<FleetRaw> {
-        return vehicles.filter { warehouseIndex.containsKey(it.currentHubId) }
-    }
-
-    private fun filterValidRoutes(
-        routes: List<RouteRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<RouteRaw> {
-        return routes.filter {
-            warehouseIndex.containsKey(it.originHubId) && warehouseIndex.containsKey(it.destinationHubId)
-        }
-    }
-
-    private fun buildVehicleList(
-        vehicles: List<FleetRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<Vehicle> {
-        val vehicleList = mutableListOf<Vehicle>()
-        for (fleetRaw in vehicles) {
-            val currentHub = warehouseIndex.getValue(fleetRaw.currentHubId)
-            for (vehicleId in fleetRaw.vehicleIds) {
-                vehicleList.add(
-                    Vehicle(
-                        id = vehicleId,
-                        maxCapacityKg = fleetRaw.maxCapacityKg,
-                        costPerKm = fleetRaw.costPerKm,
-                        currentHub = currentHub
-                    )
-                )
-            }
-        }
-        return vehicleList
-    }
-
-    private fun buildPackageList(
-        packages: List<PackageRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<Package> {
-        return packages.map {
-            Package(
-                id = it.id,
-                weight = it.weight,
-                priority = domain.model.Priority.valueOf(it.priority.name),
-                originHub = warehouseIndex.getValue(it.originHubId),
-                destinationHub = warehouseIndex.getValue(it.destinationHubId)
-            )
-        }
-    }
-
-    private fun buildRouteList(
-        routes: List<RouteRaw>,
-        warehouseIndex: Map<String, Warehouse>
-    ): List<Route> {
-        return routes.map {
-            Route(
-                id = it.id,
-                distanceKm = it.distanceKm,
-                typicalDelayMin = it.typicalDelayMin,
-                origin = warehouseIndex.getValue(it.originHubId),
-                destination = warehouseIndex.getValue(it.destinationHubId)
-            )
-        }
+        return warehouses.associateBy { it.id }
     }
 
     private fun connectGraph(
@@ -119,8 +30,8 @@ class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
         }
     }
 
-    private fun loadRawGraphData(): RawGraphData {
-        return RawGraphData(
+    private fun loadDomainGraphData(): DomainGraphData {
+        return DomainGraphData(
             warehouses = domainGraphInput.warehouseRepository.getAll(),
             packages = domainGraphInput.packageRepository.getAll(),
             vehicles = domainGraphInput.vehicleRepository.getAll(),
@@ -129,22 +40,15 @@ class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
     }
 
     fun buildGraph(): List<Warehouse> {
-        val rawGraphData = loadRawGraphData()
-        val warehouseIndex = buildWarehouseIndex(rawGraphData.warehouses)
+        val domainGraphData = loadDomainGraphData()
+        val warehouseIndex = buildWarehouseIndex(domainGraphData.warehouses)
         val warehouseList = warehouseIndex.values.toList()
 
-        val validPackages = filterValidPackages(rawGraphData.packages,warehouseIndex)
-        val validVehicles = filterValidVehicles(rawGraphData.vehicles,warehouseIndex)
-        val validRoutes = filterValidRoutes(rawGraphData.routes,warehouseIndex)
-        val vehicleList = buildVehicleList( validVehicles,warehouseIndex)
-        val packageList = buildPackageList(validPackages,warehouseIndex)
-        val routeList = buildRouteList(validRoutes,warehouseIndex)
-
         connectGraph(
-            warehouseList,
-            vehicleList,
-            packageList,
-            routeList
+            warehouseList = warehouseList,
+            vehicleList = domainGraphData.vehicles,
+            packageList = domainGraphData.packages,
+            routeList = domainGraphData.routes
         )
         return warehouseList
     }

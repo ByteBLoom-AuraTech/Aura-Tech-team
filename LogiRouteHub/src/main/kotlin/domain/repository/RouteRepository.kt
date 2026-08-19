@@ -1,7 +1,8 @@
 package domain.repository
 
-import data.dataholders.RouteRaw
+import domain.model.Route
+
 
 interface RouteRepository {
-    fun getAll(): List<RouteRaw>
+    fun getAll(): List<Route>
 }
