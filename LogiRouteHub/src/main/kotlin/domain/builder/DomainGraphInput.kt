@@ -1,9 +1,9 @@
-package builder
+package domain.builder
 
-import data.repository.PackageRepository
-import data.repository.RouteRepository
-import data.repository.VehicleRepository
-import data.repository.WarehouseRepository
+import domain.repository.PackageRepository
+import domain.repository.RouteRepository
+import domain.repository.VehicleRepository
+import domain.repository.WarehouseRepository
 
 data class DomainGraphInput(
     val warehouseRepository: WarehouseRepository,

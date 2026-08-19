@@ -1,5 +1,6 @@
 package builder
 
+import LogiRouteHub.domain.builder.DomainGraphInput
 import domain.model.Package
 import domain.model.Route
 import domain.model.Vehicle

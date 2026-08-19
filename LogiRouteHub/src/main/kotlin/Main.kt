@@ -1,5 +1,6 @@
 package LogiRouteHub
 
+import LogiRouteHub.domain.builder.DomainGraphInput
 import algorithm.*
 import builder.*
 import domain.model.Warehouse

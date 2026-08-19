@@ -1,4 +1,4 @@
-package domain.logic.pricing.decorator
+package domain.logic.pricing.additionalpricing
 
 abstract class PackageDecorator(
     protected val packageComponent: PackageComponent
