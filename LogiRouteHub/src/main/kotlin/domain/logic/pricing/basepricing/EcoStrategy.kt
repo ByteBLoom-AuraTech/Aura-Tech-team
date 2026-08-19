@@ -1,4 +1,4 @@
-package domain.pricing
+package domain.logic.pricing.basepricing
 import domain.logic.pricing.config.BasePricingConfig
 import domain.logic.pricing.basepricing.DispatchStrategy
 import domain.model.Priority

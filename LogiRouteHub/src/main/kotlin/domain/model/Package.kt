@@ -1,5 +1,5 @@
 package domain.model
-import domain.logic.pricing.packagefees.PackageComponent
+import domain.logic.pricing.additionalpricing.PackageComponent
 
 data class Package(
     val id: String,

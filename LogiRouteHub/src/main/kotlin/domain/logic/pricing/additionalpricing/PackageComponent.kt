@@ -1,4 +1,4 @@
-package domain.logic.pricing.packagefees
+package domain.logic.pricing.additionalpricing
 
 interface PackageComponent {
 
