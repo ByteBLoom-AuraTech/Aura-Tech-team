@@ -1,11 +1,15 @@
 package LogiRouteHub
-
+import domain.logic.algorithms.BreadthFirstSearchRouter
+import domain.logic.algorithms.DijkstraRouter
+import domain.logic.algorithms.Router
 import LogiRouteHub.domain.builder.DomainGraphInput
 import algorithm.*
 import builder.*
+
 import domain.model.Warehouse
 import data.processing.loader.*
 import data.repository.csv.*
+
 
 fun main() {
     println("LogiRouteHub System")
@@ -15,7 +19,7 @@ fun main() {
     )
     val packageRepository = CsvPackageRepository(
         PackageLoader("packages.csv")
-    )
+         )
     val routeRepository = CsvRouteRepository(
         RouteLoader("routes.csv")
     )
@@ -35,7 +39,7 @@ fun main() {
     testPricing(connectedWarehouses)
     testSorting(connectedWarehouses)
     verifyGraph(connectedWarehouses)
-
+    testRouting(connectedWarehouses)
     // Task 2 Execution Point
     testPackageAssignmentRing()
 }
@@ -203,4 +207,90 @@ private fun verifyAndOutputResults(
 
 private fun generateSamplePackageIds(count: Int): List<String> {
     return (1..count).map { index -> "PKG-TEST-$index" }
+}
+import domain.logic.algorithms.BreadthFirstSearchRouter
+import domain.logic.algorithms.DijkstraRouter
+import domain.logic.algorithms.Router
+
+private fun testRouting(connectedWarehouses: List<Warehouse>) {
+    println("\n==================================================")
+    println("  ROUTING ALGORITHMS COMPARISON                   ")
+    println("==================================================\n")
+
+    if (connectedWarehouses.size < 2) {
+        println("Not enough warehouses to test routing.")
+        return
+    }
+
+    val start = connectedWarehouses.first()
+    val destination = connectedWarehouses.last()
+
+    println(" Start: ${start.id} (${start.name})")
+    println("Destination: ${destination.id} (${destination.name})")
+    println()
+
+    // BFS
+    val bfsPath = BreadthFirstSearchRouter().findRoute(start, destination)
+    printRouteResult("BFS (Least Hops)", bfsPath)
+
+    // Dijkstra
+    val dijkstraPath = DijkstraRouter(connectedWarehouses).findRoute(start, destination)
+    printRouteResult("Dijkstra (Shortest Distance)", dijkstraPath)
+
+    // مقارنة
+    compareRoutes(bfsPath, dijkstraPath)
+}
+
+private fun printRouteResult(name: String, path: List<Warehouse>) {
+    if (path.isNotEmpty()) {
+        val hops = path.size - 1
+        val distance = calculatePathDistance(path)
+        println("$name:")
+        println("   Path: ${path.joinToString { it.id }}")
+        println("   Hops: $hops")
+        println("   Distance: ${String.format("%.2f", distance)} km")
+    } else {
+        println(" $name: No path found")
+    }
+    println()
+}
+
+private fun calculatePathDistance(path: List<Warehouse>): Double {
+    var total = 0.0
+    for (i in 0 until path.size - 1) {
+        val from = path[i]
+        val to = path[i + 1]
+        val route = from.outgoingRoutes.find { it.destination == to }
+        total += route?.distanceKm ?: 0.0
+    }
+    return total
+}
+
+private fun compareRoutes(bfsPath: List<Warehouse>, dijkstraPath: List<Warehouse>) {
+    println("COMPARISON:")
+
+    if (bfsPath.isEmpty() && dijkstraPath.isEmpty()) {
+        println("   No path found")
+        return
+    }
+    if (bfsPath.isEmpty()) {
+        println("    Only Dijkstra found a path")
+        return
+    }
+    if (dijkstraPath.isEmpty()) {
+        println("    Only BFS found a path")
+        return
+    }
+
+    val bfsDist = calculatePathDistance(bfsPath)
+    val dijkstraDist = calculatePathDistance(dijkstraPath)
+
+    if (bfsDist > dijkstraDist) {
+        println("  Dijkstra is better by ${String.format("%.2f", bfsDist - dijkstraDist)} km")
+        println("   BFS found fewer hops but longer distance")
+    } else if (dijkstraDist > bfsDist) {
+        println("   BFS is better by ${String.format("%.2f", dijkstraDist - bfsDist)} km")
+    } else {
+        println("   Both found the same distance")
+    }
 }

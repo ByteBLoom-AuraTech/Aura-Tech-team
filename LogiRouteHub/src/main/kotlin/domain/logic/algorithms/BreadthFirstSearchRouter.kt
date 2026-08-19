@@ -2,7 +2,7 @@ package domain.logic.algorithms
 
 import domain.model.Warehouse
 
-class BreadthFirstSearchRouter {
+class BreadthFirstSearchRouter : Router {
 
     private class BfsSearchState(
         val startWarehouse: Warehouse
