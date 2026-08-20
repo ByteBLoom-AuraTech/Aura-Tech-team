@@ -1,4 +1,4 @@
-package domain.logic.algorithms
+package domain.logic.algorithms.sorting
 
 import domain.model.Package
 
