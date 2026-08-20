@@ -1,11 +1,8 @@
 package domain.builder
 
-import domain.model.Package
-import domain.model.Route
-import domain.model.Vehicle
-import domain.model.Warehouse
+import domain.model.*
 
-class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
+class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput) {
 
     private fun buildWarehouseIndex(
         warehouses: List<Warehouse>

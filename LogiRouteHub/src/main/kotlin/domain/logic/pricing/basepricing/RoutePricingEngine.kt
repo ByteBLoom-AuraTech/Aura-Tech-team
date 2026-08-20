@@ -2,7 +2,7 @@ package domain.logic.pricing.basepricing
 
 import domain.model.Priority
 
-class RoutePricingEngine(private var activeStrategy : DispatchStrategy) {
+class RoutePricingEngine(private var activeStrategy: DispatchStrategy) {
     fun switchStrategy(newStrategy: DispatchStrategy) {
         activeStrategy = newStrategy
     }

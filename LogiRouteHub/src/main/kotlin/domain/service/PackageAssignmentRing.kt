@@ -1,7 +1,6 @@
 package algorithm
 
 import kotlin.math.abs
-import domain.model.Vehicle
 
 data class RingVehicle(
     val id: String,
@@ -18,6 +17,7 @@ data class PackageMapping(
         return "Package [$packageId] at Slot ($circleSlot) -> Assigned to Vehicle [$vehicleId] at Slot ($vehicleSlot)"
     }
 }
+
 object PackageAssignmentRing {
 
     const val CIRCLE_SIZE = 100
@@ -35,9 +35,10 @@ object PackageAssignmentRing {
     )
 }
 
-fun mapPackageToSlot(packageId: String ): Int {
+fun mapPackageToSlot(packageId: String): Int {
     return abs(packageId.hashCode()) % PackageAssignmentRing.CIRCLE_SIZE
 }
+
 fun resolveVehicleClockwise(
     packageSlot: Int,
     vehicles: List<RingVehicle>

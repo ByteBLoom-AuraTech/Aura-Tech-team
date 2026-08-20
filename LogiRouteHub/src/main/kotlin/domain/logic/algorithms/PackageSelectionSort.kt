@@ -31,7 +31,11 @@ fun findBestPackageIndex(packages: List<PackageRaw>): Int {
 
         if (isHigherPackagePriority(currentPackage, selectedPackage)) {
             bestPackageIndex = currentPackageIndex
-        } else if (currentPackage.priority == selectedPackage.priority && isHigherPackageWeight(currentPackage, selectedPackage)) {
+        } else if (currentPackage.priority == selectedPackage.priority && isHigherPackageWeight(
+                currentPackage,
+                selectedPackage
+            )
+        ) {
             bestPackageIndex = currentPackageIndex
         }
     }

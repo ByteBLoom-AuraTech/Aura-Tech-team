@@ -1,4 +1,5 @@
 package domain.logic.pricing.basepricing
+
 import domain.logic.pricing.config.BasePricingConfig
 import domain.model.Priority
 
