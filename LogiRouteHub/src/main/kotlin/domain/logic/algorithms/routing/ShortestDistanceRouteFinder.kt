@@ -28,10 +28,10 @@ class ShortestDistanceRouteFinder(
 
         val searchState = DistanceSearchState()
         initializeSearch(searchState, startWarehouse)
-        return runDijkstraSearch(startWarehouse, destinationWarehouse, searchState)
+        return searchForShortestPath(startWarehouse, destinationWarehouse, searchState)
     }
 
-    private fun runDijkstraSearch(
+    private fun searchForShortestPath(
         startWarehouse: Warehouse,
         destinationWarehouse: Warehouse,
         searchState: DistanceSearchState
@@ -68,7 +68,7 @@ class ShortestDistanceRouteFinder(
         var shortestDistance = UNREACHABLE_DISTANCE
 
         for (warehouse in searchState.unvisitedWarehouses) {
-            val warehouseDistance = searchState.warehouseDistances[warehouse] ?: INITIAL_DISTANCE
+            val warehouseDistance = searchState.warehouseDistances[warehouse] ?: UNREACHABLE_DISTANCE
 
             if (warehouseDistance < shortestDistance) {
                 shortestDistance = warehouseDistance
@@ -95,9 +95,9 @@ class ShortestDistanceRouteFinder(
     ) {
 
         val nextWarehouse = route.destination
-        val currentDistance = searchState.warehouseDistances[currentWarehouse] ?: INITIAL_DISTANCE
+        val currentDistance = searchState.warehouseDistances[currentWarehouse] ?: UNREACHABLE_DISTANCE
         val newDistance = currentDistance + route.distanceKm
-        val existingDistance = searchState.warehouseDistances[nextWarehouse] ?: INITIAL_DISTANCE
+        val existingDistance = searchState.warehouseDistances[nextWarehouse] ?: UNREACHABLE_DISTANCE
 
         if (newDistance < existingDistance) {
             searchState.warehouseDistances[nextWarehouse] = newDistance
