@@ -7,10 +7,10 @@ class ExpressInsuranceDecorator(
     private val additionalPricingConfig: AdditionalPricingConfig
 ) : PackageDecorator(packageComponent) {
 
-    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
-        val baseRate = packageComponent.calculateTransitRate(baseTransitRate, AuraFees)
+    override fun calculateTransitRate(baseTransitRate: Double, auraFees: Double): Double {
+        val baseRate = packageComponent.calculateTransitRate(baseTransitRate, auraFees)
         val addedFee = additionalPricingConfig.expressInsuranceFee
 
-        return baseRate + addedFee + (addedFee * AuraFees)
+        return baseRate + addedFee + (addedFee * auraFees)
     }
 }
