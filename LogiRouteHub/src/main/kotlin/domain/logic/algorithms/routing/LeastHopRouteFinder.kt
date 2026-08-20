@@ -3,8 +3,7 @@ package domain.logic.algorithms.routing
 import domain.model.Warehouse
 
 class LeastHopRouteFinder(
-    private val routingPathBuilder: RoutingPathBuilder
-) : RouteFinder {
+    private val routingPathBuilder: RoutingPathBuilder) : RouteFinder {
 
     private class RouteSearchState {
         val warehouseQueue = ArrayDeque<Warehouse>()
@@ -23,29 +22,22 @@ class LeastHopRouteFinder(
         while (searchState.warehouseQueue.isNotEmpty()) {
             val currentWarehouse = getNextWarehouse(searchState)
             if (exploreNextWarehouses(
-                    currentWarehouse, destinationWarehouse, searchState
-                )
+                    currentWarehouse, destinationWarehouse, searchState)
             ) {
                 return buildRoutePath(
-                    startWarehouse, destinationWarehouse, searchState
-                )
+                    startWarehouse, destinationWarehouse, searchState)
             }
         }
-
         return emptyList()
     }
 
     private fun initializeSearch(
-        searchState: RouteSearchState, startWarehouse: Warehouse
-    ) {
+        searchState: RouteSearchState, startWarehouse: Warehouse) {
         searchState.warehouseQueue.addLast(startWarehouse)
-
         searchState.visitedWarehouses.add(startWarehouse)
     }
 
-    private fun getNextWarehouse(
-        searchState: RouteSearchState
-    ): Warehouse {
+    private fun getNextWarehouse(searchState: RouteSearchState): Warehouse {
         return searchState.warehouseQueue.removeFirst()
     }
 
@@ -54,24 +46,16 @@ class LeastHopRouteFinder(
     ): Boolean {
 
         for (route in currentWarehouse.outgoingRoutes) {
-
             val nextWarehouse = route.destination
-
-            if (isWarehouseAlreadyVisited(
-                    nextWarehouse, searchState
-                )
+            if (isWarehouseAlreadyVisited(nextWarehouse, searchState)
             ) {
                 continue
             }
 
-            visitWarehouse(
-                currentWarehouse, nextWarehouse, searchState
-            )
-
+            visitWarehouse(currentWarehouse, nextWarehouse, searchState)
             if (nextWarehouse == destinationWarehouse) {
                 return true
             }
-
             searchState.warehouseQueue.addLast(nextWarehouse)
         }
 
@@ -84,18 +68,12 @@ class LeastHopRouteFinder(
         return warehouse in searchState.visitedWarehouses
     }
 
-    private fun visitWarehouse(
-        currentWarehouse: Warehouse, nextWarehouse: Warehouse, searchState: RouteSearchState
-    ) {
+    private fun visitWarehouse(currentWarehouse: Warehouse, nextWarehouse: Warehouse, searchState: RouteSearchState) {
         searchState.visitedWarehouses.add(nextWarehouse)
-
         searchState.previousWarehouses[nextWarehouse] = currentWarehouse
     }
 
-    private fun buildRoutePath(
-        startWarehouse: Warehouse, destinationWarehouse: Warehouse, searchState: RouteSearchState
-    ): List<Warehouse> {
-
+    private fun buildRoutePath(startWarehouse: Warehouse, destinationWarehouse: Warehouse, searchState: RouteSearchState): List<Warehouse> {
         return routingPathBuilder.buildRoutePath(
             RoutePathRequest(
                 startWarehouse = startWarehouse,
