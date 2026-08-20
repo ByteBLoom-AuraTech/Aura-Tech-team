@@ -6,7 +6,7 @@ import domain.model.Warehouse
 private const val INITIAL_DISTANCE = 0.0
 private const val UNREACHABLE_DISTANCE = Double.MAX_VALUE
 
-class ShortestDistanceRouteFinder (
+class ShortestDistanceRouteFinder(
     private val warehouses: List<Warehouse>,
     private val routingPathBuilder: RoutingPathBuilder
 ) : RouteFinder {
@@ -83,8 +83,8 @@ class ShortestDistanceRouteFinder (
 
         for (route in currentWarehouse.outgoingRoutes) {
             val nextWarehouse = route.destination
-            if (nextWarehouse !in searchState.unvisitedWarehouses)  continue
-              updateDistanceIfShorter(route,currentWarehouse,searchState)
+            if (nextWarehouse !in searchState.unvisitedWarehouses) continue
+            updateDistanceIfShorter(route, currentWarehouse, searchState)
         }
     }
 

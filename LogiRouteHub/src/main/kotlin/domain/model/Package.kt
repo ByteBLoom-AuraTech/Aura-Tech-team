@@ -1,4 +1,5 @@
 package domain.model
+
 import domain.logic.pricing.additionalpricing.PackageComponent
 
 data class Package(
@@ -9,7 +10,7 @@ data class Package(
     val destinationHub: Warehouse
 ) : PackageComponent {
 
-    override fun calculateTransitRate(baseTransitRate: Double): Double {
-        return baseTransitRate
+    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
+        return baseTransitRate * AuraFees
     }
 }

@@ -14,7 +14,8 @@ class RoutingPathBuilder {
         var currentWarehouse = routePathRequest.destinationWarehouse
 
         while (
-            currentWarehouse != routePathRequest.startWarehouse) { routePath.add(currentWarehouse)
+            currentWarehouse != routePathRequest.startWarehouse) {
+            routePath.add(currentWarehouse)
             val previousWarehouse = routePathRequest.previousWarehouses[currentWarehouse] ?: return emptyList()
             currentWarehouse = previousWarehouse
         }

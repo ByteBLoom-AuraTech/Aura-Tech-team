@@ -5,7 +5,7 @@ import domain.model.Route
 import domain.model.Vehicle
 import domain.model.Warehouse
 
-class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput){
+class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput) {
 
     private fun buildWarehouseIndex(
         warehouses: List<Warehouse>

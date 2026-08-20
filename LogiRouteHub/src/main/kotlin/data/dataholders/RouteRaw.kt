@@ -1,4 +1,5 @@
 package data.dataholders
+
 data class RouteRaw(
     val id: String,
     val originHubId: String,

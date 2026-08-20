@@ -6,4 +6,5 @@ interface RouteFinder {
     fun findRoute(
         startWarehouse: Warehouse,
         destinationWarehouse: Warehouse
-    ): List<Warehouse>}
+    ): List<Warehouse>
+}
