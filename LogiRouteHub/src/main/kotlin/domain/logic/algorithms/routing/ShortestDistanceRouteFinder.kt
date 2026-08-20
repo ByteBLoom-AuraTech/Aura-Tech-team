@@ -3,13 +3,13 @@ package domain.logic.algorithms.routing
 import domain.model.Route
 import domain.model.Warehouse
 
+private const val INITIAL_DISTANCE = 0.0
+private const val UNREACHABLE_DISTANCE = Double.MAX_VALUE
+
 class ShortestDistanceRouteFinder (
     private val warehouses: List<Warehouse>,
     private val routingPathBuilder: RoutingPathBuilder
 ) : RouteFinder {
-
-    private val initialDistance = 0.0
-    private val unreachableDistance = Double.MAX_VALUE
 
     private class DistanceSearchState {
 
@@ -77,11 +77,11 @@ class ShortestDistanceRouteFinder (
             )
 
             searchState.warehouseDistances[warehouse] =
-                unreachableDistance
+                INITIAL_DISTANCE
         }
 
         searchState.warehouseDistances[startWarehouse] =
-            initialDistance
+            INITIAL_DISTANCE
     }
 
     private fun findNearestUnvisitedWarehouse(
@@ -89,13 +89,13 @@ class ShortestDistanceRouteFinder (
     ): Warehouse? {
 
         var nearestWarehouse: Warehouse? = null
-        var shortestDistance = unreachableDistance
+        var shortestDistance = INITIAL_DISTANCE
 
         for (warehouse in searchState.unvisitedWarehouses) {
 
             val warehouseDistance =
                 searchState.warehouseDistances[warehouse]
-                    ?: unreachableDistance
+                    ?: INITIAL_DISTANCE
 
             if (warehouseDistance < shortestDistance) {
                 shortestDistance = warehouseDistance
@@ -140,14 +140,14 @@ class ShortestDistanceRouteFinder (
 
         val currentDistance =
             searchState.warehouseDistances[currentWarehouse]
-                ?: unreachableDistance
+                ?: INITIAL_DISTANCE
 
         val newDistance =
             currentDistance + route.distanceKm
 
         val existingDistance =
             searchState.warehouseDistances[nextWarehouse]
-                ?: unreachableDistance
+                ?: INITIAL_DISTANCE
 
         if (newDistance < existingDistance) {
 
