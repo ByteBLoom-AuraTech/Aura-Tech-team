@@ -8,6 +8,8 @@ private const val WAREHOUSE_NAME_INDEX = 1
 private const val REGIONAL_ZONE_INDEX = 2
 private const val LATITUDE_INDEX = 3
 private const val LONGITUDE_INDEX = 4
+private const val DEFAULT_COORDINATE = 0.0
+private const val MISSING_COORDINATE = "N/A"
 
 fun parseWarehouses(lines: List<String>): List<WarehouseRaw> {
     if (lines.isEmpty()) return emptyList()
@@ -62,6 +64,6 @@ private fun hasRequiredWarehouseFields(columns: List<String>): Boolean {
 }
 
 private fun parseCoordinate(value: String): Double {
-    if (value.trim().equals("N/A", ignoreCase = true)) return 0.0
-    return value.trim().toDoubleOrNull() ?: 0.0
+    if (value.trim().equals(MISSING_COORDINATE, ignoreCase = true)) return DEFAULT_COORDINATE
+    return value.trim().toDoubleOrNull() ?: DEFAULT_COORDINATE
 }
