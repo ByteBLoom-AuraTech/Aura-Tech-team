@@ -3,7 +3,8 @@ package domain.logic.algorithms.routing
 import domain.model.Warehouse
 
 class LeastHopRouteFinder(
-    private val routingPathBuilder: RoutingPathBuilder) : RouteFinder {
+    private val routingPathBuilder: RoutingPathBuilder
+) : RouteFinder {
 
     private class RouteSearchState {
         val warehouseQueue = ArrayDeque<Warehouse>()
@@ -22,17 +23,20 @@ class LeastHopRouteFinder(
         while (searchState.warehouseQueue.isNotEmpty()) {
             val currentWarehouse = getNextWarehouse(searchState)
             if (exploreNextWarehouses(
-                    currentWarehouse, destinationWarehouse, searchState)
+                    currentWarehouse, destinationWarehouse, searchState
+                )
             ) {
                 return buildRoutePath(
-                    startWarehouse, destinationWarehouse, searchState)
+                    startWarehouse, destinationWarehouse, searchState
+                )
             }
         }
         return emptyList()
     }
 
     private fun initializeSearch(
-        searchState: RouteSearchState, startWarehouse: Warehouse) {
+        searchState: RouteSearchState, startWarehouse: Warehouse
+    ) {
         searchState.warehouseQueue.addLast(startWarehouse)
         searchState.visitedWarehouses.add(startWarehouse)
     }
@@ -73,7 +77,11 @@ class LeastHopRouteFinder(
         searchState.previousWarehouses[nextWarehouse] = currentWarehouse
     }
 
-    private fun buildRoutePath(startWarehouse: Warehouse, destinationWarehouse: Warehouse, searchState: RouteSearchState): List<Warehouse> {
+    private fun buildRoutePath(
+        startWarehouse: Warehouse,
+        destinationWarehouse: Warehouse,
+        searchState: RouteSearchState
+    ): List<Warehouse> {
         return routingPathBuilder.buildRoutePath(
             RoutePathRequest(
                 startWarehouse = startWarehouse,

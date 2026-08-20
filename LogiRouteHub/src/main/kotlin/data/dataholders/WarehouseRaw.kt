@@ -1,4 +1,5 @@
 package data.dataholders
+
 data class WarehouseRaw(
     val id: String,
     val name: String,

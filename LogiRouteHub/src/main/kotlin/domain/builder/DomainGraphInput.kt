@@ -1,4 +1,5 @@
 package domain.builder
+
 import domain.repository.*
 
 data class DomainGraphInput(
