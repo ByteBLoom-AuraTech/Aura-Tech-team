@@ -45,6 +45,11 @@ private fun isValidFleetRaw(
         return false
     }
 
+    if (!hasRequiredFleetFields(columns)) {
+        println("Warning: Missing vehicle ID or current hub ID -> $originalLine")
+        return false
+    }
+
     if (!isValidFleetCapacity(columns[MAX_CAPACITY_KG_INDEX])) {
         println("Warning: Invalid maxCapacityKg -> $originalLine")
         return false
@@ -56,6 +61,11 @@ private fun isValidFleetRaw(
     }
 
     return true
+}
+
+private fun hasRequiredFleetFields(columns: List<String>): Boolean {
+    return isNotBlank(columns[VEHICLE_ID_INDEX]) &&
+            isNotBlank(columns[CURRENT_HUB_ID_INDEX])
 }
 
 private fun isValidFleetCapacity(capacity: String): Boolean {
