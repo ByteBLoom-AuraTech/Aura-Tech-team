@@ -1,4 +1,4 @@
-package sorting
+package domain.logic.algorithms.sorting
 
 
 import data.dataholders.PackageRaw
