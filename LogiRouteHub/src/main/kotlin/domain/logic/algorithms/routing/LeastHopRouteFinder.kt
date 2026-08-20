@@ -1,4 +1,5 @@
 package domain.logic.algorithms.routing
+
 import domain.model.Warehouse
 
 class LeastHopRouteFinder(
@@ -6,48 +7,27 @@ class LeastHopRouteFinder(
 ) : RouteFinder {
 
     private class RouteSearchState {
-
         val warehouseQueue = ArrayDeque<Warehouse>()
-
-        val visitedWarehouses =
-            mutableSetOf<Warehouse>()
-
-        val previousWarehouses =
-            mutableMapOf<Warehouse, Warehouse>()
+        val visitedWarehouses = mutableSetOf<Warehouse>()
+        val previousWarehouses = mutableMapOf<Warehouse, Warehouse>()
     }
 
-    override fun findRoute(
-        startWarehouse: Warehouse,
-        destinationWarehouse: Warehouse
-    ): List<Warehouse> {
+    override fun findRoute(startWarehouse: Warehouse, destinationWarehouse: Warehouse): List<Warehouse> {
 
         if (startWarehouse == destinationWarehouse) {
             return listOf(startWarehouse)
         }
-
         val searchState = RouteSearchState()
-
-        initializeSearch(
-            searchState,
-            startWarehouse
-        )
+        initializeSearch(searchState, startWarehouse)
 
         while (searchState.warehouseQueue.isNotEmpty()) {
-
-            val currentWarehouse =
-                getNextWarehouse(searchState)
-
-            if (
-                exploreNextWarehouses(
-                    currentWarehouse,
-                    destinationWarehouse,
-                    searchState
+            val currentWarehouse = getNextWarehouse(searchState)
+            if (exploreNextWarehouses(
+                    currentWarehouse, destinationWarehouse, searchState
                 )
             ) {
                 return buildRoutePath(
-                    startWarehouse,
-                    destinationWarehouse,
-                    searchState
+                    startWarehouse, destinationWarehouse, searchState
                 )
             }
         }
@@ -56,8 +36,7 @@ class LeastHopRouteFinder(
     }
 
     private fun initializeSearch(
-        searchState: RouteSearchState,
-        startWarehouse: Warehouse
+        searchState: RouteSearchState, startWarehouse: Warehouse
     ) {
         searchState.warehouseQueue.addLast(startWarehouse)
 
@@ -71,28 +50,22 @@ class LeastHopRouteFinder(
     }
 
     private fun exploreNextWarehouses(
-        currentWarehouse: Warehouse,
-        destinationWarehouse: Warehouse,
-        searchState: RouteSearchState
+        currentWarehouse: Warehouse, destinationWarehouse: Warehouse, searchState: RouteSearchState
     ): Boolean {
 
         for (route in currentWarehouse.outgoingRoutes) {
 
             val nextWarehouse = route.destination
 
-            if (
-                isWarehouseAlreadyVisited(
-                    nextWarehouse,
-                    searchState
+            if (isWarehouseAlreadyVisited(
+                    nextWarehouse, searchState
                 )
             ) {
                 continue
             }
 
             visitWarehouse(
-                currentWarehouse,
-                nextWarehouse,
-                searchState
+                currentWarehouse, nextWarehouse, searchState
             )
 
             if (nextWarehouse == destinationWarehouse) {
@@ -106,35 +79,28 @@ class LeastHopRouteFinder(
     }
 
     private fun isWarehouseAlreadyVisited(
-        warehouse: Warehouse,
-        searchState: RouteSearchState
+        warehouse: Warehouse, searchState: RouteSearchState
     ): Boolean {
         return warehouse in searchState.visitedWarehouses
     }
 
     private fun visitWarehouse(
-        currentWarehouse: Warehouse,
-        nextWarehouse: Warehouse,
-        searchState: RouteSearchState
+        currentWarehouse: Warehouse, nextWarehouse: Warehouse, searchState: RouteSearchState
     ) {
         searchState.visitedWarehouses.add(nextWarehouse)
 
-        searchState.previousWarehouses[nextWarehouse] =
-            currentWarehouse
+        searchState.previousWarehouses[nextWarehouse] = currentWarehouse
     }
 
     private fun buildRoutePath(
-        startWarehouse: Warehouse,
-        destinationWarehouse: Warehouse,
-        searchState: RouteSearchState
+        startWarehouse: Warehouse, destinationWarehouse: Warehouse, searchState: RouteSearchState
     ): List<Warehouse> {
 
         return routingPathBuilder.buildRoutePath(
             RoutePathRequest(
                 startWarehouse = startWarehouse,
                 destinationWarehouse = destinationWarehouse,
-                previousWarehouses =
-                    searchState.previousWarehouses
+                previousWarehouses = searchState.previousWarehouses
             )
         )
     }
