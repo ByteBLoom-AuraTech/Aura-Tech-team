@@ -4,7 +4,7 @@ abstract class PackageDecorator(
     protected val packageComponent: PackageComponent
 ) : PackageComponent {
 
-    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
-        return packageComponent.calculateTransitRate(baseTransitRate, AuraFees)
+    override fun calculateTransitRate(baseTransitRate: Double, auraFees: Double): Double {
+        return packageComponent.calculateTransitRate(baseTransitRate, auraFees)
     }
 }

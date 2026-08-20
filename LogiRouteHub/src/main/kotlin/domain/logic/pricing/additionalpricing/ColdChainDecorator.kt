@@ -7,8 +7,8 @@ class ColdChainDecorator(
     private val additionalPricingConfig: AdditionalPricingConfig
 ) : PackageDecorator(packageComponent) {
 
-    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
-        val baseRate = packageComponent.calculateTransitRate(baseTransitRate, AuraFees)
+    override fun calculateTransitRate(baseTransitRate: Double, auraFees: Double): Double {
+        val baseRate = packageComponent.calculateTransitRate(baseTransitRate, auraFees)
 
         return baseRate * additionalPricingConfig.coldChainMultiplier
     }
