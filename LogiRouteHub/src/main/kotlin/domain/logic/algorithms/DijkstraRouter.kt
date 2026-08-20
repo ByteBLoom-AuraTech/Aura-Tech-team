@@ -21,7 +21,6 @@ class DijkstraRouter(
             }
             distances[startWarehouse] = 0.0
         }
-
         fun findMinDistanceWarehouse(): Warehouse? {
             var minDistance = Double.MAX_VALUE
             var minWarehouse: Warehouse? = null
@@ -36,7 +35,6 @@ class DijkstraRouter(
 
             return minWarehouse
         }
-
         fun updateNeighbor(
             current: Warehouse,
             neighbor: Warehouse,
@@ -62,7 +60,6 @@ class DijkstraRouter(
             return path.reversed()
         }
     }
-
     override fun findRoute(
         startWarehouse: Warehouse,
         destinationWarehouse: Warehouse
