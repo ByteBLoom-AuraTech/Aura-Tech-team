@@ -28,6 +28,8 @@ fun main() {
     val routeFinderFactory = RouteFinderFactory(RoutingPathBuilder())
     printDecoratedPackageRate(warehouses)
     printRoutingComparison(warehouses, routeFinderFactory)
+    printBidirectionalRouting(warehouses, routeFinderFactory)
+
 }
 
 // --------------------------------------------------------------
@@ -150,4 +152,27 @@ private fun printRoutingComparison(
 
     println("BFS (Least Hops): " + leastHopPath.joinToString(" -> ") { it.name })
     println("Dijkstra (Shortest Distance): " + shortestDistancePath.joinToString(" -> ") { it.name })
+}
+
+// --------------------------------------------------------------
+// ========== BFS vs BIDIRECTIONAL BFS ==========
+// --------------------------------------------------------------
+private fun printBidirectionalRouting(
+    warehouses: List<Warehouse>,
+    routeFinderFactory: RouteFinderFactory) {
+
+    if (warehouses.size < 2) {
+        println("Not enough warehouses to demonstrate bidirectional routing.")
+        return
+    }
+
+    val startWarehouse = warehouses.first()
+    val destinationWarehouse = warehouses.last()
+
+    val bidirectionalRouteFinder: RouteFinder =
+        routeFinderFactory.createBidirectionalRouteFinder(warehouses)
+
+    val bidirectionalPath = bidirectionalRouteFinder.findRoute(startWarehouse, destinationWarehouse)
+
+    println("Bidirectional BFS path: " + bidirectionalPath.joinToString(" -> ") { it.name })
 }
