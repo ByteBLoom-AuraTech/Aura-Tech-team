@@ -7,12 +7,6 @@ import domain.model.Warehouse
 
 class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput) {
 
-    private fun buildWarehouseIndex(
-        warehouses: List<Warehouse>
-    ): Map<String, Warehouse> {
-        return warehouses.associateBy { it.id }
-    }
-
     private fun connectGraph(
         warehouseList: List<Warehouse>,
         vehicleList: List<Vehicle>,
@@ -41,15 +35,13 @@ class DomainGraphBuilder(private val domainGraphInput: DomainGraphInput) {
 
     fun buildGraph(): List<Warehouse> {
         val domainGraphData = loadDomainGraphData()
-        val warehouseIndex = buildWarehouseIndex(domainGraphData.warehouses)
-        val warehouseList = warehouseIndex.values.toList()
 
         connectGraph(
-            warehouseList = warehouseList,
+            warehouseList = domainGraphData.warehouses,
             vehicleList = domainGraphData.vehicles,
             packageList = domainGraphData.packages,
             routeList = domainGraphData.routes
         )
-        return warehouseList
+        return domainGraphData.warehouses
     }
 }

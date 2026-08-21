@@ -10,7 +10,7 @@ data class Package(
     val destinationHub: Warehouse
 ) : PackageComponent {
 
-    override fun calculateTransitRate(baseTransitRate: Double, AuraFees: Double): Double {
-        return baseTransitRate * AuraFees
+    override fun calculateTransitRate(baseTransitRate: Double, auraFees: Double): Double {
+        return baseTransitRate
     }
 }
