@@ -1,27 +1,69 @@
-package LogiRouteHub
-
-import LogiRouteHub.domain.builder.DomainGraphInput
-import algorithm.*
-import builder.*
-import domain.model.Warehouse
 import data.processing.loader.*
 import data.repository.csv.*
+import domain.builder.DomainGraphBuilder
+import domain.builder.DomainGraphInput
+import domain.logic.algorithms.routing.*
+import domain.logic.algorithms.sorting.sortPackagesUsingSelectionSort
+import domain.logic.pricing.additionalpricing.*
+import domain.logic.pricing.basepricing.*
+import domain.logic.pricing.config.*
+import domain.model.Warehouse
+import domain.repository.*
+
+private const val WAREHOUSES_FILE_NAME = "warehouses.csv"
+private const val PACKAGES_FILE_NAME = "packages.csv"
+private const val ROUTES_FILE_NAME = "routes.csv"
+private const val FLEET_FILE_NAME = "fleet.csv"
+private const val DEMO_BASE_TRANSIT_RATE = 100.0
+private const val TOP_PRIORITY_COUNT = 3
 
 fun main() {
-    println("LogiRouteHub System")
+    printSortedPriorityPackages()
 
-    val warehouseRepository = CsvWarehouseRepository(
-        WarehouseLoader("warehouses.csv")
-    )
-    val packageRepository = CsvPackageRepository(
-        PackageLoader("packages.csv")
-    )
-    val routeRepository = CsvRouteRepository(
-        RouteLoader("routes.csv")
-    )
-    val vehicleRepository = CsvVehicleRepository(
-        VehicleLoader("fleets.csv")
-    )
+    val warehouses = buildDomainGraph()
+
+    sortAndPrintCargoQueue(warehouses)
+    switchPricingStrategy()
+
+    val routeFinderFactory = RouteFinderFactory(RoutingPathBuilder())
+    printDecoratedPackageRate(warehouses)
+    printRoutingComparison(warehouses, routeFinderFactory)
+}
+
+// --------------------------------------------------------------
+// CSV parsing pipeline + manual Selection Sort on raw packages
+// --------------------------------------------------------------
+
+private fun printSortedPriorityPackages() {
+    val rawPackages = PackageLoader(PACKAGES_FILE_NAME).loadPackages()
+    val sortedPackages = sortPackagesUsingSelectionSort(rawPackages)
+
+    println("Successfully parsed packages: ${rawPackages.size}")
+    println("Top $TOP_PRIORITY_COUNT priority packages:")
+    sortedPackages.take(TOP_PRIORITY_COUNT).forEach { println(it) }
+}
+
+// --------------------------------------------------------------
+// Domain graph construction (repositories -> builder -> warehouses)
+// --------------------------------------------------------------
+
+private fun buildDomainGraph(): List<Warehouse> {
+    val warehouseLoader = WarehouseLoader(WAREHOUSES_FILE_NAME)
+    val packageLoader = PackageLoader(PACKAGES_FILE_NAME)
+    val routeLoader = RouteLoader(ROUTES_FILE_NAME)
+    val vehicleLoader = VehicleLoader(FLEET_FILE_NAME)
+
+    val warehouseRepository: WarehouseRepository =
+        CsvWarehouseRepository(warehouseLoader)
+
+    val packageRepository: PackageRepository =
+        CsvPackageRepository(packageLoader, warehouseRepository)
+
+    val routeRepository: RouteRepository =
+        CsvRouteRepository(routeLoader, warehouseRepository)
+
+    val vehicleRepository: VehicleRepository =
+        CsvVehicleRepository(vehicleLoader, warehouseRepository)
 
     val domainGraphInput = DomainGraphInput(
         warehouseRepository = warehouseRepository,
@@ -30,177 +72,82 @@ fun main() {
         vehicleRepository = vehicleRepository
     )
 
-    val connectedWarehouses = buildDomainGraph(domainGraphInput)
-
-    testPricing(connectedWarehouses)
-    testSorting(connectedWarehouses)
-    verifyGraph(connectedWarehouses)
-
-    // Task 2 Execution Point
-    testPackageAssignmentRing()
+    return DomainGraphBuilder(domainGraphInput).buildGraph()
 }
 
-private fun buildDomainGraph(
-    domainGraphInput: DomainGraphInput
-): List<Warehouse> {
-    println("Building Domain Graph")
-
-    val builder = DomainGraphBuilder(domainGraphInput)
-    val connectedWarehouses = builder.buildGraph()
-    println("Connected hubs: ${connectedWarehouses.size}")
-    return connectedWarehouses
-}
-
-private fun testPricing(connectedWarehouses: List<Warehouse>) {
-    println("Testing Route Pricing")
-
-    val sampleHub = connectedWarehouses.firstOrNull()
-    val samplePackage = sampleHub?.cargoQueue?.firstOrNull()
-    val sampleRoute = sampleHub?.outgoingRoutes?.firstOrNull()
-
-    if (samplePackage != null && sampleRoute != null) {
-        println("Testing package ID: ${samplePackage.id} (Weight: ${samplePackage.weight}kg)")
-        println("Route Distance: ${sampleRoute.distanceKm} km")
-
-        val basePrice = sampleRoute.distanceKm * 1.5
-        println("Estimated Base Shipping Price: \$$basePrice")
-    } else {
-        println("No package or route available to test pricing.")
+private fun sortAndPrintCargoQueue(warehouses: List<Warehouse>) {
+    val firstWarehouse = warehouses.firstOrNull() ?: run {
+        println("No warehouse available to demonstrate sorting.")
+        return
     }
+
+    firstWarehouse.sortCargoQueue()
+
+    println("Sorted cargo queue for ${firstWarehouse.name}:")
+    firstWarehouse.cargoQueue.forEach { println(it) }
 }
 
-private fun testSorting(connectedWarehouses: List<Warehouse>) {
-    println("Testing QuickSort Cargo Queue")
+private fun switchPricingStrategy() {
+    val basePricingConfig = BasePricingConfig()
+    val routePricingEngine = RoutePricingEngine(EcoStrategy(basePricingConfig))
 
-    val firstHub = connectedWarehouses.firstOrNull()
+    println("Strategy switched from Eco to Express")
+    routePricingEngine.switchStrategy(ExpressStrategy(basePricingConfig))
+}
 
-    if (firstHub != null && firstHub.cargoQueue.isNotEmpty()) {
-        println("Before Sorting (${firstHub.id}):")
-        firstHub.cargoQueue.forEachIndexed { index, pkg ->
-            println("  $index: ${pkg.id} (${pkg.weight}kg)")
+// --------------------------------------------------------------
+// Decorator pattern
+// --------------------------------------------------------------
+
+private fun printDecoratedPackageRate(warehouses: List<Warehouse>) {
+    val firstPackage: PackageComponent =
+        warehouses.firstOrNull()?.cargoQueue?.firstOrNull() ?: run {
+            println("No package available to demonstrate decorators.")
+            return
         }
 
-        firstHub.sortCargoQueue()
+    val additionalPricingConfig = AdditionalPricingConfig()
 
-        println("After Sorting (${firstHub.id})")
-        firstHub.cargoQueue.forEachIndexed { index, pkg ->
-            println("  $index: ${pkg.id} (${pkg.weight}kg)")
-        }
-    } else {
-        println("First hub has no packages to sort.")
-    }
-}
-
-private fun verifyGraph(connectedWarehouses: List<Warehouse>) {
-    println("Quick Verification")
-
-    val firstHub = connectedWarehouses.firstOrNull()
-    if (firstHub != null) {
-        println("First hub ID: ${firstHub.id} (${firstHub.name})")
-        println("  Packages count: ${firstHub.cargoQueue.size}")
-        println("  Vehicles count: ${firstHub.stationedVehicles.size}")
-        println("  Routes count:   ${firstHub.outgoingRoutes.size}")
-    } else {
-        println("No hubs built.")
-    }
-}
-
-// ==================================================
-// TASK 2: CONSISTENT HASHING - PACKAGE ASSIGNMENT RING
-// ==================================================
-
-private fun testPackageAssignmentRing() {
-    println("\n==================================================")
-    println("  CONSISTENT HASHING - PACKAGE ASSIGNMENT RING    ")
-    println("==================================================\n")
-
-    val initialVehicles = setupInitialVehicles()
-    val samplePackageIds = generateSamplePackageIds(count = 30)
-
-    val initialDistribution = distributeAllPackages(
-        packageIds = samplePackageIds,
-        vehicles = initialVehicles
+    val decoratedPackage = ExpressInsuranceDecorator(
+        packageComponent = ColdChainDecorator(
+            packageComponent = FragileHandlingDecorator(firstPackage, additionalPricingConfig),
+            additionalPricingConfig = additionalPricingConfig
+        ),
+        additionalPricingConfig = additionalPricingConfig
     )
 
-    println("--- INITIAL PACKAGE ASSIGNMENTS ---")
-    initialDistribution.values.forEach { mapping ->
-        println(mapping)
-    }
-
-    runOutageSimulation(initialVehicles, initialDistribution)
-}
-
-private fun setupInitialVehicles(): List<RingVehicle> {
-    return listOf(
-        RingVehicle(id = "Vehicle-15", slot = PackageAssignmentRing.VEHICLE_SLOT_A),
-        RingVehicle(id = "Vehicle-40", slot = PackageAssignmentRing.VEHICLE_SLOT_B),
-        RingVehicle(id = "Vehicle-65", slot = PackageAssignmentRing.VEHICLE_SLOT_C),
-        RingVehicle(id = "Vehicle-90", slot = PackageAssignmentRing.VEHICLE_SLOT_D)
+    val transitRate = decoratedPackage.calculateTransitRate(
+        baseTransitRate = DEMO_BASE_TRANSIT_RATE,
+        auraFees = additionalPricingConfig.auraFees
     )
+
+    println("Decorated package rate: $transitRate")
 }
 
-private fun runOutageSimulation(
-    initialVehicles: List<RingVehicle>,
-    initialDistribution: Map<String, PackageMapping>
+// --------------------------------------------------------------
+// BFS  and Dijkstra routing
+// --------------------------------------------------------------
+
+private fun printRoutingComparison(
+    warehouses: List<Warehouse>,
+    routeFinderFactory: RouteFinderFactory
 ) {
-    val brokenVehicleId = "Vehicle-40"
-    val expectedFallbackVehicleSlot = PackageAssignmentRing.VEHICLE_SLOT_C
-    val remainingVehicles = initialVehicles.filterNot { it.id == brokenVehicleId }
-
-    println("\n==================================================")
-    println(">>> SIMULATING BREAKDOWN OF VEHICLE: $brokenVehicleId <<<")
-    println("==================================================\n")
-
-    val updatedDistribution = runOutageForBreakdown(
-        previousDistribution = initialDistribution,
-        brokenVehicleId = brokenVehicleId,
-        remainingVehicles = remainingVehicles
-    )
-
-    verifyAndOutputResults(
-        initialDistribution = initialDistribution,
-        updatedDistribution = updatedDistribution,
-        brokenVehicleId = brokenVehicleId,
-        expectedFallbackSlot = expectedFallbackVehicleSlot
-    )
-}
-
-private fun verifyAndOutputResults(
-    initialDistribution: Map<String, PackageMapping>,
-    updatedDistribution: Map<String, PackageMapping>,
-    brokenVehicleId: String,
-    expectedFallbackSlot: Int
-) {
-    var reroutedCargoCount = 0
-    var unaffectedCargoCount = 0
-
-    println("--- CARGO RE-ROUTING AUDIT & ASSERTIONS ---")
-
-    initialDistribution.forEach { (packageId, oldMapping) ->
-        val newMapping = updatedDistribution.getValue(packageId)
-
-        if (oldMapping.vehicleId == brokenVehicleId) {
-            check(newMapping.vehicleSlot == expectedFallbackSlot) {
-                "Assertion Failure: Package $packageId failed to shift"
-            }
-            println("[RE-ROUTED] Package [$packageId] -> Shifted to [${newMapping.vehicleId}]")
-            reroutedCargoCount++
-        } else {
-            check(oldMapping.vehicleId == newMapping.vehicleId && oldMapping.vehicleSlot == newMapping.vehicleSlot) {
-                "Assertion Failure: Package $packageId illegally migrated"
-            }
-            println("[UNCHANGED] Package [$packageId] -> Preserved on [${newMapping.vehicleId}]")
-            unaffectedCargoCount++
-        }
+    if (warehouses.size < 2) {
+        println("Not enough warehouses to demonstrate routing.")
+        return
     }
 
-    println("\n==================================================")
-    println("VERIFICATION COMPLETE & ASSERTIONS PASSED:")
-    println("[PASS] Re-routed Packages: $reroutedCargoCount")
-    println("[PASS] Unaffected Packages: $unaffectedCargoCount")
-    println("==================================================")
-}
+    val startWarehouse = warehouses.first()
+    val destinationWarehouse = warehouses.last()
 
-private fun generateSamplePackageIds(count: Int): List<String> {
-    return (1..count).map { index -> "PKG-TEST-$index" }
+    val leastHopRouteFinder: RouteFinder = routeFinderFactory.createLeastHopRouteFinder()
+    val shortestDistanceRouteFinder: RouteFinder =
+        routeFinderFactory.createShortestDistanceRouteFinder(warehouses)
+
+    val leastHopPath = leastHopRouteFinder.findRoute(startWarehouse, destinationWarehouse)
+    val shortestDistancePath =
+        shortestDistanceRouteFinder.findRoute(startWarehouse, destinationWarehouse)
+
+    println("BFS (Least Hops): " + leastHopPath.joinToString(" -> ") { it.name })
+    println("Dijkstra (Shortest Distance): " + shortestDistancePath.joinToString(" -> ") { it.name })
 }
