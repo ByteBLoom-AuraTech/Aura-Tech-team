@@ -8,9 +8,7 @@ import domain.model.Warehouse
 
 class RouteFinderFactory (private val routingPathBuilder: RoutingPathBuilder) {
     fun createLeastHopRouteFinder(): RouteFinder {
-        return LeastHopRouteFinder(
-            routingPathBuilder = routingPathBuilder
-        )
+        return LeastHopRouteFinder(routingPathBuilder = routingPathBuilder)
     }
 
     fun createShortestDistanceRouteFinder(warehouses: List<Warehouse>): RouteFinder {
@@ -19,5 +17,10 @@ class RouteFinderFactory (private val routingPathBuilder: RoutingPathBuilder) {
             routingPathBuilder = routingPathBuilder
         )
     }
-
+    fun createBidirectionalRouteFinder(warehouses: List<Warehouse>): RouteFinder {
+        return BidirectionalRouteFinder(
+            warehouses = warehouses,
+            routingPathBuilder = routingPathBuilder
+        )
+    }
 }

@@ -8,6 +8,12 @@ data class RoutePathRequest(
     val previousWarehouses: Map<Warehouse, Warehouse>
 )
 
+data class NextHopPathRequest(
+    val fromWarehouse: Warehouse,
+    val toWarehouse: Warehouse,
+    val nextHopWarehouses: Map<Warehouse, Warehouse>
+)
+
 class RoutingPathBuilder {
     fun buildRoutePath(routePathRequest: RoutePathRequest): List<Warehouse> {
         val routePath = mutableListOf<Warehouse>()
@@ -22,5 +28,20 @@ class RoutingPathBuilder {
 
         routePath.add(routePathRequest.startWarehouse)
         return routePath.reversed()
+    }
+
+    fun buildPathFollowingNextHops(nextHopPathRequest: NextHopPathRequest): List<Warehouse> {
+        val path = mutableListOf<Warehouse>()
+        var currentWarehouse = nextHopPathRequest.fromWarehouse
+        path.add(currentWarehouse)
+
+        while (currentWarehouse != nextHopPathRequest.toWarehouse) {
+            val nextWarehouse =
+                nextHopPathRequest.nextHopWarehouses[currentWarehouse] ?: return emptyList()
+            currentWarehouse = nextWarehouse
+            path.add(currentWarehouse)
+        }
+
+        return path
     }
 }
